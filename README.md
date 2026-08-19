@@ -1,4 +1,4 @@
-# Private Vaccination Certificate DApp — Midnight Preprod
+# Private Vaccination Certificate DApp ï¿½ Midnight Preprod
 
 A zero-knowledge, privacy-preserving vaccination credential platform built on **Midnight Network** (Midnight Preprod Testnet).
 
@@ -22,33 +22,33 @@ The DApp features a production-ready **Node.js + Express + TypeScript** server l
 
 ```
                     USER BROWSER
-                         ¦
-                         ¦ HTTPS / REST
+                         ï¿½
+                         ï¿½ HTTPS / REST
                          ?
                  NODE.JS APPLICATION SERVER
                  +-------------------------+
-                 ¦ Express / TypeScript    ¦
-                 ¦ Server & REST APIs      ¦
+                 ï¿½ Express / TypeScript    ï¿½
+                 ï¿½ Server & REST APIs      ï¿½
                  +-------------------------+
-                             ¦
+                             ï¿½
              +---------------+---------------+
              ?               ?               ?
         Midnight          GraphQL         ZK Proof
        Preprod RPC        Indexer          Server
-             ¦
+             ï¿½
              ?
       Compact Contract (Address: 956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c)
 
                      ?
-                     ¦ CIP-30 (Browser Only)
+                     ï¿½ CIP-30 (Browser Only)
              Authentic Lace Wallet
 ```
 
 ### Express REST API Endpoints
-- `GET /api/health` — Application server, indexer, and proof server health check.
-- `GET /api/network` — Current active Midnight network configuration (`preprod`).
-- `GET /api/contract` — Deployed Compact contract address and on-chain confirmation details.
-- `GET /api/ledger` — Live contract ledger state query via Preprod Indexer GraphQL API.
+- `GET /api/health` ï¿½ Application server, indexer, and proof server health check.
+- `GET /api/network` ï¿½ Current active Midnight network configuration (`preprod`).
+- `GET /api/contract` ï¿½ Deployed Compact contract address and on-chain confirmation details.
+- `GET /api/ledger` ï¿½ Live contract ledger state query via Preprod Indexer GraphQL API.
 
 ---
 
@@ -60,7 +60,7 @@ The DApp features a production-ready **Node.js + Express + TypeScript** server l
 
 ---
 
-## ?? Application Interface & Workflows
+## ??? Application Interface & Workflows
 
 ### Overview
 ![Overview](docs/images/overview.png)
@@ -76,7 +76,7 @@ _*The Certificate Verification interface evaluates provable Compact smart contra
 
 ---
 
-## ?? Zero-Knowledge Circuit Assertions
+## ??? Zero-Knowledge Circuit Assertions
 
 The Compact smart contract evaluates three zero-knowledge assertions locally on-device:
 1. `private_dose_count >= min_doses_required`: Asserts dose compliance without disclosing actual count.
@@ -85,7 +85,7 @@ The Compact smart contract evaluates three zero-knowledge assertions locally on-
 
 ---
 
-## ?? Quick Start
+## ?? Quick Start & Setup
 
 ### Prerequisites
 - **Node.js**: v22.0.0 or higher
