@@ -1,4 +1,4 @@
-# ??? Private Vaccination Certificate DApp (MedVault ZK)
+# Private Vaccination Certificate DApp (MedVault ZK)
 
 [![CI/CD Pipeline](https://github.com/shouvikkk/vaccine/actions/workflows/ci.yml/badge.svg)](https://github.com/shouvikkk/vaccine/actions/workflows/ci.yml)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod-purple)](https://midnight.network)
@@ -6,25 +6,25 @@
 [![Node.js Engine](https://img.shields.io/badge/Node.js-%3E%3D22.0.0-green.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## ?? Project Overview
+## Project Overview
 
 **MedVault ZK (Private Vaccination Certificate DApp)** is a production-ready, zero-knowledge healthcare application built on the **Midnight Network** (Preprod Testnet). Using **Compact** smart contracts, zk-SNARK proof generation, a **Node.js + Express** production application server, and authentic **Midnight Lace Wallet** integration, MedVault ZK enables individuals to issue, store, prove, and verify vaccination credentials with **zero exposure** of personal health data, medical histories, or patient identities on-chain.
 
 ---
 
-## ?? Project Links & Resources
+## Project Links & Resources
 
 | Resource | Description | Target / URL |
 | :--- | :--- | :--- |
-| ?? **Live Repository** | Open-source monorepo codebase | [GitHub Repository](https://github.com/shouvikkk/vaccine.git) |
-| ?? **Local Application** | Production Node.js Server & DApp UI | [http://localhost:3000](http://localhost:3000) |
-| ?? **Health API** | Node.js Server & Services Health Endpoint | [http://localhost:3000/api/health](http://localhost:3000/api/health) |
-| ?? **Smart Contract Explorer** | Midnight Preprod Network Indexer GraphQL | [Preprod Indexer API](https://indexer.preprod.midnight.network/api/v4/graphql) |
-| ?? **On-Chain Contract** | Real Deployed Compact Contract Address | `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c` |
+| **Live Repository** | Open-source monorepo codebase | [GitHub Repository](https://github.com/shouvikkk/vaccine.git) |
+| **Local Application** | Production Node.js Server & DApp UI | [http://localhost:3000](http://localhost:3000) |
+| **Health API** | Node.js Server & Services Health Endpoint | [http://localhost:3000/api/health](http://localhost:3000/api/health) |
+| **Smart Contract Explorer** | Midnight Preprod Network Indexer GraphQL | [Preprod Indexer API](https://indexer.preprod.midnight.network/api/v4/graphql) |
+| **On-Chain Contract** | Real Deployed Compact Contract Address | `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c` |
 
 ---
 
-## ??? Application Preview & Workflows
+## Application Preview & Workflows
 
 ### Overview Dashboard
 ![Overview](docs/images/overview.png)
@@ -44,7 +44,7 @@ _*The Certificate Verification interface evaluates provable Compact smart contra
 
 ---
 
-## ? Problem Statement
+## Problem Statement
 
 Traditional health credential verification systems and transparent public blockchains suffer from severe privacy vulnerabilities:
 
@@ -54,7 +54,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ?? Solution Overview
+## Solution Overview
 
 **MedVault ZK** eliminates health data exposure by implementing Midnight Network's private-by-default architecture:
 
@@ -67,17 +67,17 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ?? Key Features
+## Key Features
 
-- ?? **Authentic Lace Wallet Integration**: Connects with native CIP-30 Midnight Lace browser extension (`window.midnight.lace`) displaying real Bech32 testnet addresses (`mn_addr_preprod...`).
-- ??? **Zero-Knowledge Circuit Prover**: Local zk-SNARK proof generation via Midnight Proof Server (`http://127.0.0.1:6300`).
-- ??? **Node.js Application Server**: Production Express + TypeScript backend serving REST endpoints (`/api/health`, `/api/network`, `/api/contract`, `/api/ledger`).
-- ?? **Public Ledger Vault**: Directly queries live on-chain contract state and confirmation heights from the Midnight Preprod Indexer.
-- ?? **Zero Data Leakage**: Patient name, dose history, and vaccine salt keys stay 100% off-chain.
+- **Authentic Lace Wallet Integration**: Connects with native CIP-30 Midnight Lace browser extension (`window.midnight.lace`) displaying real Bech32 testnet addresses (`mn_addr_preprod...`).
+- **Zero-Knowledge Circuit Prover**: Local zk-SNARK proof generation via Midnight Proof Server (`http://127.0.0.1:6300`).
+- **Node.js Application Server**: Production Express + TypeScript backend serving REST endpoints (`/api/health`, `/api/network`, `/api/contract`, `/api/ledger`).
+- **Public Ledger Vault**: Directly queries live on-chain contract state and confirmation heights from the Midnight Preprod Indexer.
+- **Zero Data Leakage**: Patient name, dose history, and vaccine salt keys stay 100% off-chain.
 
 ---
 
-## ?? Privacy Model
+## Privacy Model
 
 | Data Category | Visibility | Storage Location | Notes |
 | :--- | :--- | :--- | :--- |
@@ -91,7 +91,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ?? User Journey
+## User Journey
 
 ```
    +--------------+     +----------------+     +---------------+     +----------------+     +--------------+
@@ -108,7 +108,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ??? Architecture & Technical Data Flow
+## Architecture & Technical Data Flow
 
 ```
                     USER BROWSER
@@ -136,7 +136,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ??? Technology Stack
+## Technology Stack
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
@@ -150,7 +150,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ?? Midnight Preprod Deployment Details
+## Live Midnight Preprod Deployment Details
 
 - **Active Network**: Midnight Preprod Testnet (`preprod`)
 - **Deployed Contract Address**: `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c`
@@ -161,7 +161,7 @@ Traditional health credential verification systems and transparent public blockc
 
 ---
 
-## ?? Compact Smart Contract Information
+## Compact Smart Contract Information
 
 The Compact contract (`contracts/vaccination-certificate.compact`) defines the confidential ledger circuit:
 
@@ -201,7 +201,7 @@ export circuit verifyCertificate(
 
 ---
 
-## ?? Repository Structure
+## Repository Structure
 
 ```
 private-vaccination-certificate/
@@ -247,7 +247,7 @@ private-vaccination-certificate/
 
 ---
 
-## ?? Local Setup & Installation
+## Local Setup & Installation
 
 ### Prerequisites
 - **Node.js**: v22.0.0 or higher
@@ -273,7 +273,7 @@ Open `http://localhost:3000` in your browser.
 
 ---
 
-## ?? Testing & Verification
+## Testing & Verification
 
 Execute the Vitest test suite covering contract logic, privacy models, wallet state, and Node.js server APIs:
 
@@ -289,7 +289,7 @@ npm run build
 
 ---
 
-## ?? Security & Privacy Considerations
+## Security & Privacy Considerations
 
 - **No Private Keys Exposed**: User private keys, seed phrases, and CIP-30 authorizations stay strictly browser-side in the Lace Wallet extension.
 - **Environment Security**: No private seeds or secret credentials exist in `.env.example` or frontend distributions.
@@ -297,6 +297,6 @@ npm run build
 
 ---
 
-## ?? License
+## License
 
 This project is licensed under the **MIT License**.
