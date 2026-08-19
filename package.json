@@ -18,7 +18,9 @@
     "clean": "rm -rf contracts/managed .midnight-state.json .midnight-wallet-state",
     "test": "npx vitest run",
     "test:e2e": "tsx scripts/e2e-check.ts",
-    "dev": "vite"
+    "dev": "vite",
+    "start": "npx tsx server/index.ts",
+    "start:server": "npx tsx server/index.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
@@ -32,6 +34,8 @@
     "@midnight-ntwrk/midnight-js-types": "4.1.1",
     "@midnight-ntwrk/midnight-js-utils": "4.1.1",
     "@midnight-ntwrk/wallet-sdk": "1.2.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -39,6 +43,7 @@
     "ws": "^8.21.1"
   },
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^22.0.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",

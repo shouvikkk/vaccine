@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShieldCheck, Lock, CheckCircle2, Database, PlusCircle, ArrowRight, Activity, Wallet, Cpu, Sparkles } from 'lucide-react';
-import { ContractLedgerState, WalletState } from '../services/midnight';
+import { ShieldCheck, PlusCircle, CheckCircle2, Database, Lock, ArrowRight, Cpu, Activity, Wallet, Loader2 } from 'lucide-react';
 import { NavTab } from './Header';
+import { ContractLedgerState, WalletState } from '../services/midnight';
 
 interface DashboardOverviewProps {
   wallet: WalletState;
@@ -17,25 +17,26 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onConnectWallet,
 }) => {
   return (
-    <div style={{ display: 'flex', flexFlow: 'column', gap: '2rem' }} id="dashboard-overview-container">
+    <div style={{ display: 'flex', flexFlow: 'column', gap: '1.5rem' }} id="dashboard-overview-container">
       {/* Hero Banner */}
       <div className="card" style={{
-        background: 'linear-gradient(135deg, #ffffff 0%, #eff6ff 100%)',
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(240,249,255,0.9) 100%)',
         borderColor: '#bfdbfe',
-        padding: '2.25rem',
+        padding: '2rem',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
-          <div style={{ maxWidth: '680px' }}>
-            <div className="badge badge-blue" style={{ marginBottom: '0.85rem' }}>
-              <Sparkles size={13} /> Midnight Network Zero-Knowledge Protocol
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div style={{ maxWidth: '640px' }}>
+            <div className="badge badge-blue" style={{ marginBottom: '0.75rem' }}>
+              <ShieldCheck size={14} /> Confidential Healthcare Credentials
             </div>
-            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>
-              Confidential Healthcare Credentials & Zero-Knowledge Verification
+            <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.6rem', letterSpacing: '-0.02em' }}>
+              Zero-Knowledge Private Vaccination Passports
             </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-              Prove vaccination status and medical compliance to border authorities, employers, and venues <strong>without disclosing personal identity, dose history, or medical records</strong> on-chain.
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
+              Prove valid vaccination status, minimum dose compliance, and unexpired certification to verifiers without revealing patient identity, personal medical records, or historical doses on the Midnight blockchain.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', flexWrap: 'wrap' }}>
+
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
               <button className="btn btn-primary" onClick={() => onNavigate('verify')} id="hero-verify-btn">
                 <CheckCircle2 size={18} />
                 Verify Certificate Proof
@@ -67,7 +68,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Cpu size={14} /> Network
                 </span>
-                <span className="badge badge-blue">{wallet.network.toUpperCase()}</span>
+                <span className={`badge ${wallet.isConnected ? 'badge-blue' : 'badge-subtle'}`}>
+                  {wallet.isConnected && wallet.network ? wallet.network.toUpperCase() : 'NOT CONNECTED'}
+                </span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -82,9 +85,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   <Wallet size={14} /> Lace Wallet
                 </span>
                 {wallet.isConnected ? (
-                  <span className="badge badge-emerald">Connected</span>
+                  <span className="badge badge-emerald"><span className="status-dot"></span> Connected</span>
+                ) : wallet.isConnecting ? (
+                  <span className="badge badge-blue"><Loader2 size={12} className="spin" /> Connecting</span>
                 ) : (
-                  <button onClick={onConnectWallet} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }}>
+                  <button onClick={onConnectWallet} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer' }} id="dash-connect-wallet-btn">
                     Connect Now
                   </button>
                 )}
@@ -112,7 +117,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           </div>
           <div>
             <div className="stat-value" style={{ fontSize: '1rem', fontFamily: 'var(--font-mono)' }}>
-              {ledger?.authorityHash.substring(0, 10)}...
+              {ledger?.authorityHash ? `${ledger.authorityHash.substring(0, 10)}...` : '--'}
             </div>
             <div className="stat-label">Health Authority Hash</div>
           </div>
@@ -123,8 +128,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <Wallet size={24} />
           </div>
           <div>
-            <div className="stat-value" style={{ fontSize: '1.1rem' }}>{wallet.balance}</div>
-            <div className="stat-label">Wallet Balance (tNIGHT)</div>
+            <div className="stat-value" style={{ fontSize: '1rem' }}>
+              {wallet.isConnected ? (wallet.balance ? `${wallet.balance} tNIGHT` : 'Connected (Lace)') : '--'}
+            </div>
+            <div className="stat-label">Wallet Status</div>
           </div>
         </div>
 

@@ -15,8 +15,7 @@ describe('Vaccination Certificate ZK Contract Logic', () => {
 
     expect(res.success).toBe(true);
     expect(res.nullifierHash).toMatch(/^0x[0-9a-f]{64}$/);
-    expect(res.txId).toContain('tx_mid_');
-    expect(res.blockHeight).toBeGreaterThan(0);
+    expect(res.provedTimestamp).toBeDefined();
   });
 
   it('should fail ZK assertion when dose count is insufficient', async () => {

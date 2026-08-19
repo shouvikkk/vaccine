@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, RefreshCw, Layers, Key, Hash, Copy, Check, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Database, RefreshCw, Layers, Key, Hash, Copy, Check, ShieldCheck } from 'lucide-react';
 import { ContractLedgerState } from '../services/midnight';
 
 interface LedgerStateCardProps {
@@ -91,41 +91,37 @@ export const LedgerStateCard: React.FC<LedgerStateCardProps> = ({
                 </div>
               </div>
 
-              <div className="data-row">
-                <span className="data-label">
-                  <ShieldCheck size={14} style={{ color: 'var(--teal)' }} /> Latest Disclosed ZK Nullifier
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <span className="hash-pill">{ledger.lastNullifier}</span>
-                  <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.72rem' }} onClick={() => copyToClipboard(ledger.lastNullifier, 'Nullifier Hash', setCopiedNullifier)}>
-                    {copiedNullifier ? <Check size={12} style={{ color: 'var(--emerald)' }} /> : <Copy size={12} />}
-                  </button>
+              {ledger.lastNullifier && (
+                <div className="data-row">
+                  <span className="data-label">
+                    <ShieldCheck size={14} style={{ color: 'var(--teal)' }} /> Latest Disclosed ZK Nullifier
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <span className="hash-pill">{ledger.lastNullifier}</span>
+                    <button className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.72rem' }} onClick={() => copyToClipboard(ledger.lastNullifier!, 'Nullifier Hash', setCopiedNullifier)}>
+                      {copiedNullifier ? <Check size={12} style={{ color: 'var(--emerald)' }} /> : <Copy size={12} />}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Recent Verification Log */}
-            <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-                Recent Disclosed Nullifier Activity
-              </div>
-              <div style={{ display: 'flex', flexFlow: 'column', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="status-dot" style={{ color: 'var(--emerald)' }}></span>
-                    <span className="hash-pill" style={{ fontSize: '0.72rem' }}>{ledger.lastNullifier.substring(0, 18)}...</span>
-                  </div>
-                  <span style={{ color: 'var(--text-tertiary)' }}>Just now</span>
+            {ledger.lastNullifier && (
+              <div>
+                <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                  Latest Disclosed Nullifier Activity
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span className="status-dot" style={{ color: 'var(--emerald)' }}></span>
-                    <span className="hash-pill" style={{ fontSize: '0.72rem' }}>0x8a9b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b...</span>
+                <div style={{ display: 'flex', flexFlow: 'column', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 0.85rem', background: 'var(--bg-surface)', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span className="status-dot" style={{ color: 'var(--emerald)' }}></span>
+                      <span className="hash-pill" style={{ fontSize: '0.72rem' }}>{ledger.lastNullifier}</span>
+                    </div>
+                    <span style={{ color: 'var(--text-tertiary)' }}>Verified Proof</span>
                   </div>
-                  <span style={{ color: 'var(--text-tertiary)' }}>14 mins ago</span>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           <div className="banner banner-info">Querying public ledger state from Midnight indexer...</div>

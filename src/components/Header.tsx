@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Cpu, Wallet, LayoutDashboard, PlusCircle, CheckCircle2, Database, Lock, LogOut } from 'lucide-react';
+import { ShieldCheck, Cpu, Wallet, LayoutDashboard, PlusCircle, CheckCircle2, Database, Lock, LogOut, Loader2 } from 'lucide-react';
 import { WalletState } from '../services/midnight';
 
 export type NavTab = 'overview' | 'issue' | 'verify' | 'ledger' | 'privacy';
@@ -75,23 +75,28 @@ export const Header: React.FC<HeaderProps> = ({
       </nav>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <div className="badge badge-blue">
+        <div className={`badge ${wallet.isConnected ? 'badge-blue' : 'badge-subtle'}`} id="network-status-badge">
           <Cpu size={13} />
-          {wallet.network.toUpperCase()}
+          {wallet.isConnected && wallet.network ? wallet.network.toUpperCase() : 'NOT CONNECTED'}
         </div>
 
         {wallet.isConnected ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <div className="badge badge-emerald" style={{ padding: '0.45rem 0.85rem' }} id="wallet-status-badge">
               <span className="status-dot"></span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
-                {wallet.address?.substring(0, 12)}...{wallet.address?.substring(wallet.address.length - 4)}
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} title={wallet.address || ''}>
+                {wallet.address ? `${wallet.address.substring(0, 10)}...${wallet.address.substring(wallet.address.length - 4)}` : 'Connected'}
               </span>
             </div>
             <button className="btn btn-danger" onClick={onDisconnect} style={{ padding: '0.45rem 0.75rem' }} id="disconnect-wallet-btn" title="Disconnect Wallet">
               <LogOut size={14} />
             </button>
           </div>
+        ) : wallet.isConnecting ? (
+          <button className="btn btn-primary" disabled id="connecting-wallet-btn" style={{ opacity: 0.85 }}>
+            <Loader2 size={16} className="spin" />
+            Connecting Lace...
+          </button>
         ) : (
           <button className="btn btn-primary" onClick={onConnect} id="connect-wallet-btn">
             <Wallet size={16} />

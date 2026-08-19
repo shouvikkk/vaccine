@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Lock, FileCheck2, Loader2, AlertCircle, CheckCircle2, ShieldAlert, Cpu, EyeOff, Hash, Clock, Copy, Check } from 'lucide-react';
+import { ShieldAlert, AlertCircle, FileCheck2, Loader2, CheckCircle2, Lock, Eye, EyeOff, Hash, Clock, Copy, Check } from 'lucide-react';
 import { MidnightService, VerificationResult, WalletState } from '../services/midnight';
 
 interface VerificationFormProps {
   wallet: WalletState;
   onSuccess: () => void;
-  onToast: (title: string, message?: string) => void;
+  onToast: (title: string, message?: string, type?: 'success' | 'error' | 'info') => void;
   initialSecret?: string;
 }
 
@@ -16,39 +16,43 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
   initialSecret = 'SECRET_SALT_PATIENT_9821',
 }) => {
   const [patientSecret, setPatientSecret] = useState(initialSecret);
-  const [showSecret, setShowSecret] = useState(false);
   const [doseCount, setDoseCount] = useState<number>(3);
   const [vaccineCode, setVaccineCode] = useState<number>(101);
   const [expirationYear, setExpirationYear] = useState<number>(2030);
   const [minDosesRequired, setMinDosesRequired] = useState<number>(2);
 
+  const [showSecret, setShowSecret] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [proofStep, setProofStep] = useState<number>(0);
   const [result, setResult] = useState<VerificationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedNullifier, setCopiedNullifier] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const midnight = MidnightService.getInstance();
+
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!wallet.isConnected) {
       setError('Please connect your Lace Wallet to submit zero-knowledge proof transactions to Midnight.');
+      onToast('Wallet Not Connected', 'Please connect your Lace Wallet before verifying.', 'error');
       return;
     }
 
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setProofStep(1); // 1. Witness Loading
+    setProofStep(1);
 
     try {
+      // Step 1: Witness generation
       await new Promise((r) => setTimeout(r, 400));
-      setProofStep(2); // 2. Circuit Assertions
+      setProofStep(2);
 
-      await new Promise((r) => setTimeout(r, 400));
-      setProofStep(3); // 3. Proving ZK SNARK
+      // Step 2: Proof server ZK circuit calculation
+      await new Promise((r) => setTimeout(r, 600));
+      setProofStep(3);
 
-      const midnight = MidnightService.getInstance();
-      const res = await midnight.verifyCertificateCircuit({
+      const verifyRes = await midnight.verifyCertificateCircuit({
         patientSecret,
         doseCount,
         vaccineCode,
@@ -56,22 +60,23 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
         minDosesRequired,
       });
 
-      setProofStep(4); // 4. Ledger Finality
-      setResult(res);
+      setProofStep(4);
+      setResult(verifyRes);
+      onToast('ZK Proof Verified', 'Certificate proven valid on Compact circuit with zero privacy leakage!', 'success');
       onSuccess();
-      onToast('Proof Verified & Committed!', `Disclosed Nullifier: ${res.nullifierHash.substring(0, 14)}...`);
     } catch (err: any) {
-      setError(err.message || 'Zero-Knowledge Circuit execution failed');
-      onToast('Verification Failed', err.message);
+      const msg = err?.message || 'Verification failed on zero-knowledge assertion.';
+      setError(msg);
+      onToast('Verification Failed', msg, 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCopyNullifier = (hash: string) => {
-    navigator.clipboard.writeText(hash);
+  const handleCopyNullifier = (nullifier: string) => {
+    navigator.clipboard.writeText(nullifier);
     setCopiedNullifier(true);
-    onToast('Nullifier Copied!', 'ZK Nullifier hash copied to clipboard.');
+    onToast('Nullifier Copied', 'Disclosed nullifier hash copied to clipboard.');
     setTimeout(() => setCopiedNullifier(false), 2000);
   };
 
@@ -81,39 +86,55 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
         <div className="card-header">
           <div className="card-title-group">
             <div className="card-title-icon" style={{ background: 'var(--primary-light)', color: 'var(--primary)' }}>
-              <Lock size={20} />
+              <FileCheck2 size={20} />
             </div>
             <div>
-              <div className="card-title">Prove & Verify Vaccination Credential</div>
-              <div className="card-subtitle">Execute Compact Zero-Knowledge Circuit Assertions</div>
+              <div className="card-title">Zero-Knowledge Certificate Verification</div>
+              <div className="card-subtitle">Evaluate Compact smart contract circuit off-chain & submit nullifier</div>
             </div>
           </div>
-          <span className="badge badge-emerald">
-            <Cpu size={13} /> Midnight ZK Engine
-          </span>
+          <span className="badge badge-blue">Compact Circuit</span>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Witness Inputs Box */}
-          <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-light)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--amber)', marginBottom: '0.75rem' }}>
-              <EyeOff size={16} /> Private Witness Inputs (Never Disclosed On-Chain)
+        <form onSubmit={handleVerify}>
+          {/* Private Witness Inputs */}
+          <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-light)', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+              <Lock size={16} style={{ color: 'var(--amber)' }} /> Private Witness Credentials (Never Disclosed)
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="patientSecretFormInput">
-                Patient Secret Salt / Private Witness Key
+              <label className="form-label" htmlFor="verifySecretInput">
+                Patient Identity Secret Hash (Witness Salt)
               </label>
-              <input
-                id="patientSecretFormInput"
-                type={showSecret ? 'text' : 'password'}
-                className="form-control"
-                value={patientSecret}
-                onChange={(e) => setPatientSecret(e.target.value)}
-                placeholder="PATIENT_SECRET_KEY"
-                required
-              />
-              <div className="form-hint">Used locally inside private witness state to calculate non-malleable ZK nullifier.</div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="verifySecretInput"
+                  type={showSecret ? 'text' : 'password'}
+                  className="form-control"
+                  style={{ paddingRight: '2.5rem' }}
+                  value={patientSecret}
+                  onChange={(e) => setPatientSecret(e.target.value)}
+                  placeholder="PATIENT_SECRET_KEY"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSecret(!showSecret)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-tertiary)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
@@ -169,7 +190,7 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
           {/* Public Assertion Parameters */}
           <div style={{ background: 'var(--bg-accent-subtle)', border: '1px solid #bfdbfe', padding: '1.25rem', borderRadius: 'var(--radius-md)', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '0.75rem' }}>
-              <Cpu size={16} /> Verifier Public Assertion Rule
+              Verifier Public Assertion Rule
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -260,13 +281,15 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
                   </button>
                 </div>
               </div>
+              {result.txId && (
+                <div className="data-row">
+                  <span className="data-label"><FileCheck2 size={14} /> Transaction ID</span>
+                  <span className="data-val" style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>{result.txId}</span>
+                </div>
+              )}
               <div className="data-row">
-                <span className="data-label"><FileCheck2 size={14} /> Transaction ID</span>
-                <span className="data-val" style={{ fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>{result.txId}</span>
-              </div>
-              <div className="data-row">
-                <span className="data-label"><Clock size={14} /> Block Height & Time</span>
-                <span className="data-val">Block #{result.blockHeight} • {result.provedTimestamp}</span>
+                <span className="data-label"><Clock size={14} /> Proved At</span>
+                <span className="data-val">{result.provedTimestamp}</span>
               </div>
             </div>
           </div>

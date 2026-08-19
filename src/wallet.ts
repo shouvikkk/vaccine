@@ -106,9 +106,12 @@ export async function createWallet(opts: CreateWalletOptions): Promise<WalletCon
 
   const walletConfig = {
     networkId,
+    batchUpdates: { size: 5000, spacing: 0, timeout: 50 },
     indexerClientConnection: {
       indexerHttpUrl: opts.networkConfig.indexer,
       indexerWsUrl: opts.networkConfig.indexerWS,
+      bufferSize: 50000,
+      resumeThreshold: 1000,
     },
     provingServerUrl: new URL(opts.networkConfig.proofServer),
     relayURL: new URL(opts.networkConfig.node.replace(/^http/, 'ws')),

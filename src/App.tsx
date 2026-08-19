@@ -8,15 +8,16 @@ import { PrivacyExplainer } from './components/PrivacyExplainer';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { MidnightService, WalletState, ContractLedgerState } from './services/midnight';
 
-const INITIAL_NETWORK = (import.meta.env.VITE_NETWORK || "PREPROD").toUpperCase();
-
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('overview');
   const [wallet, setWallet] = useState<WalletState>({
+    providerAvailable: false,
+    isConnecting: false,
     isConnected: false,
     address: null,
-    balance: '0 tNIGHT',
-    network: INITIAL_NETWORK,
+    network: null,
+    balance: null,
+    error: null,
   });
 
   const [ledgerState, setLedgerState] = useState<ContractLedgerState | null>(null);
@@ -59,9 +60,16 @@ export const App: React.FC = () => {
   useEffect(() => {
     loadLedgerState();
     
-    // Auto-connect if wallet session is saved
+    // Check initial Lace extension availability
+    const available = midnight.isLaceAvailable();
+    setWallet((prev) => ({
+      ...prev,
+      providerAvailable: available,
+    }));
+
+    // Auto-connect ONLY if authentic Lace provider exists and is already authorized
     midnight.autoConnectIfSessionActive().then((savedState) => {
-      if (savedState) {
+      if (savedState && savedState.isConnected) {
         setWallet(savedState);
       }
     }).catch(() => {
@@ -70,12 +78,23 @@ export const App: React.FC = () => {
   }, []);
 
   const handleConnectWallet = async () => {
+    setWallet((prev) => ({ ...prev, isConnecting: true, error: null }));
     try {
       const state = await midnight.connectLaceWallet();
       setWallet(state);
-      addToast('Lace Wallet Connected', `Connected account ${state.address?.substring(0, 14)}...`);
+      addToast('Lace Wallet Connected', `Connected account ${state.address?.substring(0, 14)}...`, 'success');
     } catch (err: any) {
-      addToast('Wallet Connection Error', err?.message || 'Failed to connect Lace Wallet.', 'error');
+      const errMsg = err?.message || 'Failed to connect Lace Wallet.';
+      setWallet({
+        providerAvailable: midnight.isLaceAvailable(),
+        isConnecting: false,
+        isConnected: false,
+        address: null,
+        network: null,
+        balance: null,
+        error: errMsg,
+      });
+      addToast('Wallet Connection Error', errMsg, 'error');
     }
   };
 
@@ -143,7 +162,7 @@ export const App: React.FC = () => {
           <strong>MedVault ZK</strong> • Private Vaccination Certificate Platform • Built on Midnight Network
         </div>
         <div style={{ marginTop: '0.25rem', fontSize: '0.78rem', color: 'var(--text-tertiary)' }}>
-          Confidential Credentials & Zero-Knowledge Proof Infrastructure • Level 1, 2, 3 Complete Submission
+          Confidential Credentials & Zero-Knowledge Proof Infrastructure • Authentic Midnight Lace Integration
         </div>
       </footer>
 
