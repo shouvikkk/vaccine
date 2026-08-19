@@ -60,6 +60,22 @@ The DApp features a production-ready **Node.js + Express + TypeScript** server l
 
 ---
 
+## ?? Application Interface & Workflows
+
+### Overview
+![Overview](docs/images/overview.png)
+_*The MedVault ZK Overview dashboard presents real-time system health, authentic Midnight Lace Wallet connectivity, and network status on Midnight Preprod. It provides a central command hub showing verified on-chain proof counters, public health authority key hashes, and zero-leak witness privacy guarantees.*_
+
+### Certificate Issue Record
+![Certificate Issue Record](docs/images/certificate_issue_record.png)
+_*The Certificate Issue Record interface enables healthcare providers to generate private witness credentials locally on-device. Patient identity secrets and dose history are stored strictly within client memory as secret keys, creating a local witness store ready for zero-knowledge proof verification without writing sensitive health records on-chain.*_
+
+### Certificate Verification
+![Certificate Verification](docs/images/certificate_verification.png)
+_*The Certificate Verification interface evaluates provable Compact smart contract circuit assertions off-chain using the patient's private witness key. Verifiers specify public assertion rules (such as minimum dose requirements), allowing the Compact circuit to prove compliance and submit disclosed nullifier hashes to the Midnight blockchain while keeping medical details completely confidential.*_
+
+---
+
 ## ?? Zero-Knowledge Circuit Assertions
 
 The Compact smart contract evaluates three zero-knowledge assertions locally on-device:
