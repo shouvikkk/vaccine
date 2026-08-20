@@ -6,6 +6,7 @@ A production-grade, privacy-preserving zero-knowledge vaccination certificate ap
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod-purple)](https://midnight.network)
 [![Compact Compiler](https://img.shields.io/badge/Compact-v0.31.1-blue)](https://midnight.network)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Walkthrough Video](https://img.shields.io/badge/Video-Walkthrough-red?logo=youtube)](https://youtu.be/i8tDovwYb3U)
 
 ---
 
@@ -272,6 +273,7 @@ private-vaccination-certificate/
 ## 🔗 Quick Links
 
 - **Live Production Application**: [MedVault ZK Portal (Vercel)](https://vaccine-weld.vercel.app/)
+- **Video Walkthrough**: [YouTube Video Demonstration](https://youtu.be/i8tDovwYb3U)
 - **Repository**: [GitHub Codebase](https://github.com/shouvikkk/vaccine.git)
 - **Official Indexer**: [GraphQL Endpoint](https://indexer.preprod.midnight.network/api/v4/graphql)
 - **Midnight Network**: [Official Site](https://midnight.network)
