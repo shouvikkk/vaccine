@@ -1,315 +1,287 @@
-# MedVault ZK — Private Vaccination Certificate DApp
+# 🔐 MedVault ZK — Private Vaccination Certificate DApp
 
-A production-grade, zero-knowledge healthcare credential platform built on **Midnight Network** (Midnight Preprod Testnet).
+A production-grade, privacy-preserving zero-knowledge vaccination certificate application built on the **Midnight Network**.
 
 [![CI/CD Pipeline](https://github.com/shouvikkk/vaccine/actions/workflows/ci.yml/badge.svg)](https://github.com/shouvikkk/vaccine/actions/workflows/ci.yml)
 [![Midnight Network](https://img.shields.io/badge/Midnight-Preprod-purple)](https://midnight.network)
-[![Zero Knowledge](https://img.shields.io/badge/Zero--Knowledge-Compact%20v0.31.1-blue)](https://midnight.network)
-[![Node.js Engine](https://img.shields.io/badge/Node.js-%3E%3D22.0.0-green.svg)](https://nodejs.org)
+[![Compact Compiler](https://img.shields.io/badge/Compact-v0.31.1-blue)](https://midnight.network)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Live On-Chain Deployment**: Deployed and confirmed on **Midnight Preprod Testnet** at contract address `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3` (Block `2,186,420`).
+---
+
+## 📖 Overview
+
+**MedVault ZK** is a confidential health credential verification platform. It allows healthcare providers to issue tamper-proof vaccination certificates and enables verifiers to confirm patient eligibility policy (e.g., minimum required doses, vaccine validity) using **zero-knowledge proofs (zk-SNARKs)**.
+
+By leveraging the **Midnight Network**, patients can prove their vaccination status without exposing their name, dosage count, specific vaccine types, or medical history on a public blockchain. plain health data remains locally in the user's control.
 
 ---
 
-## Overview
+## 🌐 Network & Deployment Parameters
 
-**MedVault ZK** is a confidential vaccination certificate platform that enables healthcare providers to issue private credentials and lets patients verify health policy compliance without exposing personal health records, identities, or medical histories on-chain.
-
-Powered by Midnight Network's **Compact** programming language, zk-SNARK proof generation, a **Node.js + Express** production application server, and authentic **Midnight Lace Wallet** integration, MedVault ZK establishes a zero-knowledge standard for Web3 healthcare credentials.
-
----
-
-## Problem Statement
-
-Traditional health pass systems and public blockchain verification models present critical privacy vulnerabilities:
-
-- **Excessive Exposure of Personal Data**: Proving vaccination status (for example, "received at least 2 COVID-19 vaccine doses") typically forces individuals to disclose full names, dates of birth, passport numbers, and medical facility details.
-- **On-Chain Health Surveillance**: Transparent blockchains create permanent, publicly searchable ledgers linking patient wallet addresses with specific medical treatments, violating health data privacy frameworks such as HIPAA and GDPR.
-- **Tracking and Replay Risks**: Static verification QR codes or transparent transaction logs allow third-party verifiers to track individual patient movements and correlate verification history across locations.
-
----
-
-## Solution Overview
-
-MedVault ZK addresses health data vulnerability through Midnight Network's private-by-default architecture:
-
-1. **Off-Chain Witness Storage**: Patient identity keys, dosage counts, vaccine type codes, and expiration timestamps remain stored locally within client memory as private witness data.
-2. **On-Device Zero-Knowledge Assertions**: The client evaluates Compact circuit logic locally and generates a zk-SNARK proof asserting:
-   - `private_dose_count >= min_doses_required`
-   - `private_expiration_timestamp >= current_timestamp`
-   - `private_vaccine_type > 0`
-3. **Disclosed Single-Use Nullifiers**: The Compact smart contract records a unique SHA-256 nullifier hash on the public ledger to record verification without exposing patient identities or permitting credential replay.
-
----
-
-## Key Features
-
-- **Authentic Lace Wallet Integration**: Connects to the official CIP-30 Midnight Lace browser extension (`window.midnight.lace`), displaying verified Bech32 testnet addresses (`mn_addr_preprod...`).
-- **Zero-Knowledge Circuit Prover**: Local zk-SNARK proof generation executed through the Midnight Proof Server (`http://127.0.0.1:6300`).
-- **Node.js Application Server**: Production Express and TypeScript backend hosting REST endpoints (`/api/health`, `/api/network`, `/api/contract`, `/api/ledger`).
-- **Public Ledger Vault**: Real-time on-chain state inspection querying live contract confirmation heights and total verification counts from the Midnight Preprod Indexer.
-- **Zero On-Chain Leakage**: Medical history, dosage counts, and patient identity keys remain 100% off-chain.
-
----
-
-## Privacy Model
-
-> **Zero Data Exposure Guarantee**: Sensitive medical records, dosage counts, and patient identity keys remain strictly off-chain within local client memory.
-
-| Data Category | Visibility | Storage Location | Privacy Guarantee |
-| :--- | :--- | :--- | :--- |
-| **Patient Full Name** | Private | Local Client Memory | Never written to blockchain |
-| **Witness Secret Key** | Private | Local Client Store | Salt key for ZK nullifier generation |
-| **Dose Count & History** | Private | Local Client Store | Evaluated inside ZK circuit only |
-| **Vaccine Expiration** | Private | Local Client Store | Validated off-chain via ZK assertion |
-| **Total Verifications** | Public | Midnight Blockchain | Public on-chain ledger counter |
-| **Disclosed Nullifier** | Public | Midnight Blockchain | Disclosed single-use SHA-256 hash |
-| **Authority Key Hash** | Public | Midnight Blockchain | Public health authority commitment |
-
----
-
-## Architecture
-
-The system coordinates off-chain zero-knowledge proof generation, CIP-30 Lace Wallet authorization, Express API backend services, and Midnight Network ledger state:
-
-```mermaid
-flowchart TD
-    User[User Browser / React DApp UI]
-    Server[Node.js + Express Application Server]
-    Lace[Authentic Midnight Lace Wallet Extension]
-    Prover[Midnight Proof Server Docker]
-    Indexer[Midnight Preprod Indexer GraphQL]
-    Chain[Midnight Preprod Blockchain]
-
-    User -->|HTTPS / REST API| Server
-    User -->|CIP-30 Authorization| Lace
-    User -->|zk-SNARK Proving Request| Prover
-    Server -->|GraphQL Queries| Indexer
-    Lace -->|Submit ZK Proof Tx| Chain
-    Chain -->|On-Chain State| Indexer
-```
-
----
-
-## Midnight / Compact Contract
-
-The Compact contract (`contracts/vaccination-certificate.compact`) defines the confidential ledger circuit:
-
-```compact
-pragma language_version >= 0.23;
-
-import CompactStandardLibrary;
-
-export ledger authority: Bytes<32>;
-export ledger active_vaccine_category: Uint<64>;
-export ledger total_verifications: Uint<64>;
-export ledger revocation_counter: Uint<64>;
-export ledger last_nullifier: Bytes<32>;
-
-export circuit setAuthority(new_authority: Bytes<32>): [] {
-    authority = disclose(new_authority);
-}
-
-export circuit setVaccineCategory(new_category: Uint<64>): [] {
-    active_vaccine_category = disclose(new_category);
-}
-
-export circuit registerRevocation(): [] {
-    revocation_counter = (revocation_counter + 1) as Uint<64>;
-}
-
-export circuit verifyCertificate(
-    private_patient_secret: Bytes<32>,
-    private_authority_key: Bytes<32>,
-    private_dose_count: Uint<64>,
-    private_vaccine_type: Uint<64>,
-    private_expiration_timestamp: Uint<64>,
-    min_doses_required: Uint<64>,
-    current_timestamp: Uint<64>
-): Bytes<32> {
-    assert(private_authority_key == authority, "Unauthorized health authority signature key");
-    assert(private_vaccine_type >= active_vaccine_category, "Vaccine type does not meet active policy category");
-    assert(private_dose_count >= min_doses_required, "Insufficient doses for eligibility");
-    assert(private_expiration_timestamp >= current_timestamp, "Certificate has expired");
-    assert(private_vaccine_type > 0, "Invalid vaccine code");
-
-    total_verifications = (total_verifications + 1) as Uint<64>;
-    last_nullifier = disclose(persistentHash<Vector<2, Bytes<32>>>([private_patient_secret, pad(32, "VAC_CERT_V1")]));
-
-    return last_nullifier;
-}
-```
-
----
-
-## Lace Wallet Integration
-
-- **Standard**: CIP-30 Midnight Lace Browser Extension API (`window.midnight.lace`).
-- **Address Format**: Authentic Bech32 testnet addresses (`mn_addr_preprod...`).
-- **Fee Token**: DUST transaction registration and proof execution fees.
-- **Security**: Private keys, seed phrases, and spending credentials stay 100% inside the user's Lace Wallet.
-
----
-
-## Preprod Deployment
-
-- **Network**: Midnight Preprod Testnet (`preprod`)
+- **Target Network**: Midnight Preprod Testnet
 - **Deployed Contract Address**: `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3`
 - **Deployment Transaction Hash**: `67d2568169f195b80a278c32b9528132e41b90eb4f8a5a3b604b936386fca54a`
-- **Confirmation Block Height**: `2,186,420` (`20416075db3566f26bf1a54b4e6d3730ce8e66935aeee0066ee9a6761136ceb3`)
-- **Deployer Wallet Address**: `mn_addr_preprod1gj5y769sduty0us0j724dlwhjdn3fklmqf754kpta7hm9r2yqelsp5m2at`
+- **Confirmation Block**: `2186420` (`20416075db3566f26bf1a54b4e6d3730ce8e66935aeee0066ee9a6761136ceb3`)
+- **Deployer Public Address**: `mn_addr_preprod1gj5y769sduty0us0j724dlwhjdn3fklmqf754kpta7hm9r2yqelsp5m2at`
 
 ---
 
-## Tech Stack
+## 🎯 Problem & Solution
+
+### The Problem
+Traditional digital health passes present severe privacy violations:
+- **Excessive Disclosure**: Proving vaccination status reveals the patient's full name, birth date, specific vaccine brand, and clinic location.
+- **On-Chain Profiling**: Publishing records to transparent blockchains forever links a user's wallet with their private medical history.
+- **Tracking & Correlation**: Verifiers can track user movements and correlate their check-in locations using public on-chain transactions.
+
+### The Solution
+MedVault ZK implements a **private-by-default** verification workflow:
+- **Local Proving**: The patient evaluates the smart contract ZK circuit locally inside their browser.
+- **Zero Exposure**: Plaintext records, dosage counts, and patient identity keys remain off-chain as private witness values.
+- **Double-Verification Protection**: A deterministic, single-use nullifier hash is posted to the ledger, preventing certificate reuse while shielding patient identity.
+
+---
+
+## ✨ Key Features
+
+- **Lace Wallet Integration**: Authentic connection to the Midnight Lace Browser Extension (`window.midnight.lace`) complying with the CIP-30 standard.
+- **Enhanced ZK Circuit**: Implements customizable health policy checks including minimum doses, expiration checks, authority authentication, and active policy category comparison.
+- **Ledger-State Synchronization**: Connects to the Midnight Preprod Indexer via GraphQL to show real-time contract statistics, verification counts, and revocation indices.
+- **Credential Revocation**: Healthcare authorities can invalidate compromised certificates by updating the revocation counter on-chain.
+- **Accelerated Synchronization**: Wallet catch-up is optimized using large block batch updates (15,000 blocks/request) to prevent synchronization loops.
+
+---
+
+## 🔒 Privacy Model
+
+The application enforces a strict separation of sensitive off-chain data and audited on-chain states:
+
+| Data Type | Visibility | Storage Location | Auditing / Purpose |
+| :--- | :--- | :--- | :--- |
+| **Patient Full Name** | 🔒 Private | Browser `localStorage` | Identity display in local UI |
+| **Patient Secret Key** | 🔒 Private | Browser `localStorage` | Seed for ZK nullifier generation |
+| **Dose Count & History** | 🔒 Private | Browser `localStorage` | Input evaluated inside local ZK circuit |
+| **Authority Signing Key** | 🔒 Private | Provider Local Store | Signs credentials issued to patients |
+| **Verification Counter** | 🌐 Public | Midnight Blockchain | Public audit of total check-ins |
+| **Revocation Counter** | 🌐 Public | Midnight Blockchain | Public audit of revoked certificates |
+| **Last Nullifier Hash** | 🌐 Public | Midnight Blockchain | Disclosed hash to prevent certificate replay |
+| **Active Vaccine Category**| 🌐 Public | Midnight Blockchain | Minimum vaccine category required by policy |
+
+---
+
+## 🧠 How Zero-Knowledge Verification Works
+
+```
+1. Provider issues signed certificate -> Patient saves private witness parameters.
+2. Verifier publishes policy parameters -> e.g., active category, min doses.
+3. Patient runs Compact circuit locally -> Proof asserts policy compliance.
+4. Proof + Nullifier submitted to chain -> Lace Wallet signs and pays DUST fee.
+5. Smart contract validates proof -> Increments counter & records nullifier.
+```
+
+---
+
+## 🏗️ Architecture
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    Next.js Web DApp Frontend                │
+│            (dashboard, issue, verify, credentials)           │
+└──────────────┬───────────────────────────────┬──────────────┘
+               │                               │
+               │ (CIP-30 Protocol)             │ (REST / API)
+               ▼                               ▼
+┌──────────────────────────────┐┌─────────────────────────────┐
+│   Midnight Lace Extension    ││   Next.js Node API Server   │
+│   (Browser Wallet / DUST)    ││   (Proxy Ledger Queries)    │
+└──────────────┬───────────────┘└──────────────┬──────────────┘
+               │                               │
+               │ (Submit Tx)                   │ (GraphQL GraphQL)
+               ▼                               ▼
+┌──────────────────────────────┐┌─────────────────────────────┐
+│   Midnight Preprod Sidechain ││   Midnight Preprod Indexer   │
+│   (ZK Contract Execution)    ││   (On-Chain Ledger State)   │
+└──────────────┬───────────────┘└──────────────▲──────────────┘
+               │                               │
+               └───────────(Index State)───────┘
+```
+
+---
+
+## 📜 Compact Smart Contract
+
+The core cryptographic ledger rules are declared in [`contracts/vaccination-certificate.compact`](file:///home/user/midnight-projects/private-vaccination-certificate/contracts/vaccination-certificate.compact).
+
+### Ledger State Fields
+- `authority`: The public key hash of the trusted health authority.
+- `active_vaccine_category`: The minimum category code required to satisfy current public safety policies.
+- `total_verifications`: Running total of all zero-knowledge validation events.
+- `revocation_counter`: Track of how many certificates have been globally revoked.
+- `last_nullifier`: The SHA-256 nullifier generated during the last successful verification.
+
+### Circuit Functions
+- `setAuthority(new_authority)`: Mutator to update the authorized signing authority.
+- `setVaccineCategory(new_category)`: Updates the minimum required vaccine category policy.
+- `registerRevocation()`: Increments the global revocation counter.
+- `verifyCertificate(secret, authority_key, doses, type, expiry, min_doses, current_time)`: Evaluates zero-knowledge proofs off-chain, verifies that the credential provider matches the on-chain authority, checks that the vaccine type satisfies the active category policy, asserts dosage and expiration rules, updates verification history, and returns the unique patient nullifier.
+
+---
+
+## 🪪 Midnight Lace Wallet Integration
+
+MedVault ZK connects to the official browser extension using the **CIP-30 standard** (`window.midnight.lace`).
+- **Authorization**: Seamlessly requests permission to access the user's Preprod public address.
+- **Dust Management**: Automatically calculates and signs transactions using testnet **DUST** tokens to pay execution fees.
+- **Key Custody**: The patient's secret keys, seeds, and credentials never leave the Lace wallet container.
+
+---
+
+## 🔄 User Workflow
+
+1. **Issuance**: A healthcare provider inputs the patient details and signs the certificate. The patient downloads the private witness file or saves it to their browser vault.
+2. **Setup**: The user connects their **Lace Wallet** to the dashboard, ensuring they have sufficient DUST tokens.
+3. **Verification**: When entering a restricted venue, the patient scans the active policy requirements. The local proof server evaluates the private witness, matches the vaccine type against the active category policy, and verifies the dosage.
+4. **On-Chain Recording**: The proof and single-use nullifier are packaged and submitted to the blockchain. The contract verifies the proof and logs the nullifier to prevent double-entry.
+
+---
+
+## 🖥️ Application Screenshots
+
+### 1. Landing & Product Overview
+![Landing Page](docs/images/landing_page.png)
+_Interactive homepage explaining zero-knowledge privacy schemas and DApp features._
+
+### 2. Main Dashboard & Network Status
+![Dashboard Overview](docs/images/overview.png)
+_Real-time Midnight Preprod network status, indexer block height, and Lace Wallet connection cards._
+
+### 3. Credential Vault & Issuance
+![Certificate Issuance](docs/images/certificate_issue_record.png)
+_Private credential creator generating locally stored cryptographically signed witnesses._
+
+### 4. Zero-Knowledge Verifier
+![Certificate Verification](docs/images/certificate_verification.png)
+_Stepper-based proof generator and transaction submission workspace._
+
+---
+
+## 🛠️ Technology Stack
 
 | Layer | Component | Technology |
 | :--- | :--- | :--- |
-| **Smart Contract** | Confidential Ledger | Compact (v0.31.1) ZK Language |
-| **Runtime Server** | Application Server | Node.js (v22) + Express & TypeScript |
-| **Frontend** | Web Application | React, TypeScript, Vite, Modular CSS |
-| **Wallet Connector** | CIP-30 Interface | Midnight Lace Browser Extension |
-| **ZK Prover** | Proof Generation | Midnight Proof Server Container (Port 6300) |
-| **Blockchain** | Privacy Ledger | Midnight Preprod Testnet |
-| **Test Suite** | Unit & Integration | Vitest (v3.2) — 24/24 PASS |
+| **Smart Contract** | ZK Ledger Rules | Compact v0.31.1 ZK Language |
+| **Web Frontend** | Framework & UI | Next.js v16.3.1 (App Router), React v18, Tailwind CSS |
+| **Wallet Interface** | Wallet Connector | Midnight Lace Extension (CIP-30) |
+| **Proving System** | ZK Prover | Midnight Proof Server v8.1.0 (Docker Container) |
+| **Indexer** | Chain Indexer | Midnight Standalone Indexer v4.3.3 |
+| **Test Suite** | Unit & Integration | Vitest v3.2.7 |
 
 ---
 
-## Project Structure
+## 🧪 Testing & Verification
 
-```text
-private-vaccination-certificate/
-+-- contracts/
-|   +-- vaccination-certificate.compact # Compact ZK smart contract
-|   +-- managed/                        # Compiled ZK circuits & proving assets
-+-- docs/
-|   +-- images/                         # Dashboard & workflow screenshots
-|       +-- overview.png
-|       +-- certificate_issue_record.png
-|       +-- certificate_verification.png
-+-- server/                             # Node.js production application server
-|   +-- config.ts                       # Server environment & network parameters
-|   +-- index.ts                        # Express server entry point
-|   +-- routes/
-|   |   +-- api.ts                      # REST API endpoints (/api/health, /api/ledger)
-|   +-- services/
-|       +-- indexer.ts                  # Preprod Indexer GraphQL query service
-+-- src/                                # Frontend React application
-|   +-- components/                     # Modular React UI components
-|   |   +-- DashboardOverview.tsx
-|   |   +-- Header.tsx
-|   |   +-- IssueCertificateForm.tsx
-|   |   +-- LedgerStateCard.tsx
-|   |   +-- PrivacyExplainer.tsx
-|   |   +-- Toast.tsx
-|   |   +-- VerificationForm.tsx
-|   +-- services/
-|   |   +-- midnight.ts                 # Midnight integration service & Lace connector
-|   +-- App.tsx
-|   +-- index.css
-+-- tests/                              # Vitest test suite
-|   +-- contract.test.ts
-|   +-- privacy.test.ts
-|   +-- server.test.ts
-|   +-- wallet.test.ts
-+-- .env.example                        # Environment configuration template
-+-- package.json                        # Project dependencies & scripts
-+-- README.md                           # Documentation
-+-- RESUME_CHECKPOINT.md                # Deployment parameters record
-+-- vite.config.ts                      # Bundler configuration
-```
-
----
-
-## Quick Links & Resources
-
-| Resource | Description | Target / URL |
-| :--- | :--- | :--- |
-| **Live Repository** | Open-source monorepo codebase | [GitHub Repository](https://github.com/shouvikkk/vaccine.git) |
-| **Local Application** | Production Node.js server and DApp UI | [http://localhost:3000](http://localhost:3000) |
-| **Health API** | Node.js server health endpoint | [http://localhost:3000/api/health](http://localhost:3000/api/health) |
-| **Smart Contract** | Midnight Preprod contract/indexer information | [Preprod Indexer API](https://indexer.preprod.midnight.network/api/v4/graphql) |
-| **On-Chain Contract** | Real deployed Compact contract address | `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3` |
-
----
-
-## Screenshots
-
-### Application Overview
-![MedVault ZK Application Overview](docs/images/overview.png)
-_*The MedVault ZK Overview dashboard presents real-time system health, authentic Midnight Lace Wallet connectivity, and network status on Midnight Preprod.*_
-
----
-
-### Certificate Issuance
-![Vaccination Certificate Issuance](docs/images/certificate_issue_record.png)
-_*The Certificate Issue Record interface enables healthcare providers to generate private witness credentials locally on-device.*_
-
----
-
-### Zero-Knowledge Verification
-![Certificate Verification](docs/images/certificate_verification.png)
-_*The Certificate Verification interface evaluates Compact smart contract circuit assertions off-chain and submits disclosed nullifiers to Midnight Preprod.*_
-
----
-
-## Installation
-
-```bash
-# 1. Clone repository
-git clone https://github.com/shouvikkk/vaccine.git
-cd vaccine
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment
-cp .env.example .env
-```
-
----
-
-## Running Locally
-
-```bash
-# 1. Start local proof server container (port 6300)
-docker compose up -d
-
-# 2. Start production Node.js application server (port 3000)
-npm start
-```
-
-Access the DApp UI at `http://localhost:3000`.
-
----
-
-## Testing
-
-Execute the automated Vitest test suite covering contract logic, privacy assertions, wallet integration, and API endpoints:
-
+### Automated Unit & Circuit Tests
+Run the Vitest test suite to verify ZK circuit logic, state transitions, and server controllers:
 ```bash
 npm test
 ```
+- **Result**: 🟢 **24 / 24 tests passing**
 
-**Result**: **24 / 24 PASS**
-
-Build production web bundle:
-
+### Production Build
+Verify the production Next.js build compilation:
 ```bash
 npm run build
+```
+- **Result**: 🟢 **PASS** (Successful compilation of all App Router pages and dynamic API routes).
+
+---
+
+## 🛡️ Security & Privacy Audits
+
+- **Exposed Secret Check**: Verified that no personal keys, GitHub PATs, local wallet credentials, or seed phrases are tracked in git repository history.
+- **Git Safety Config**: File exclusions in `.gitignore` prevent accidental push of `.env`, `.midnight-wallet-state/`, and `.midnight-state.json`.
+- **Witness Isolation**: plaintext medical credentials remain strictly on-device in local memory.
+
+---
+
+## ⚙️ Getting Started
+
+### 1. Prerequisites
+- **Node.js**: `>= 22.0.0`
+- **Docker**: For running the local proof server container.
+- **Midnight Lace Wallet**: Installed browser extension configured for the Preprod testnet.
+
+### 2. Installation
+```bash
+# Clone the repository
+git clone https://github.com/shouvikkk/vaccine.git
+cd vaccine
+
+# Install dependencies
+npm install
+
+# Setup environment variables
+cp .env.example .env
+```
+
+### 3. Running the ZK Proof Server
+```bash
+# Launch the proof server container
+npm run proof-server:start
+```
+
+### 4. Running the Next.js Development Server
+```bash
+# Launch Next.js dev server
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 📁 Project Structure
+
+```text
+private-vaccination-certificate/
+├── .github/workflows/ci.yml         # CI/CD test automation
+├── app/                             # Next.js App Router (pages and layouts)
+│   ├── activity/page.tsx            # Nullifier audit logs
+│   ├── api/                         # Native Next.js API endpoints
+│   │   ├── contract/route.ts        # Deployed contract reference
+│   │   └── ledger/route.ts          # indexer GraphQL proxy
+│   ├── credentials/page.tsx         # Private witness wallet
+│   ├── dashboard/page.tsx           # Wallet & status overview
+│   ├── settings/page.tsx            # Network configurations
+│   └── verify/page.tsx              # Local ZK proof generator stepper
+├── components/                      # Shared layouts (Header, Footer, Context)
+├── contracts/
+│   ├── vaccination-certificate.compact # Compact ZK smart contract
+│   └── managed/                     # Compiled ZK circuit artifacts
+├── docs/images/                     # UI layout screenshots
+├── server/                          # Standalone Node/Express server (optional API)
+├── src/                             # Shared utility files and wallet helpers
+│   ├── deploy.ts                    # Sync & deployment runner
+│   ├── wallet.ts                    # Sync parameters and batch optimization
+│   └── cli.ts                       # CLI configuration tool
+├── tests/                           # Vitest testing directory
+├── docker-compose.yml               # Proof server docker compose
+├── next.config.ts                   # Next.js configuration
+├── package.json                     # Project configuration
+└── README.md                        # Documentation
 ```
 
 ---
 
-## Security
+## 🔗 Quick Links
 
-- **Browser-Side Authorization**: CIP-30 Lace Wallet credentials and spending keys stay 100% browser-side.
-- **Environment Safety**: Sensitive keys, seed phrases, and private assets are strictly excluded from repository commits and `.env.example`.
-- **Zero On-Chain Exposure**: Personal medical records are proven through local ZK circuits without writing patient identities to the blockchain ledger.
+- **Repository**: [GitHub Codebase](https://github.com/shouvikkk/vaccine.git)
+- **Official Indexer**: [GraphQL Endpoint](https://indexer.preprod.midnight.network/api/v4/graphql)
+- **Midnight Network**: [Official Site](https://midnight.network)
 
 ---
 
-## License
+## ⚠️ Disclaimers & Notes
 
-This project is licensed under the **MIT License**.
+- **Prototype Demonstration**: This project is built as an educational demonstration of zero-knowledge credentials on the Midnight Network. It is not intended for real-world production medical compliance without additional encryption and security auditing.
+- **Testnet Tokens**: All **DUST** and **tNIGHT** tokens used in testing have zero monetary value.
