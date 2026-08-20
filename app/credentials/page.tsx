@@ -9,8 +9,18 @@ export default function CredentialsPage() {
   const [certs, setCerts] = useState<PrivateCertRecord[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
+  const [verifiedIds, setVerifiedIds] = useState<string[]>([]);
+
   useEffect(() => {
     setCerts(getSavedPrivateCertRecords());
+    try {
+      const verifiedRaw = localStorage.getItem("medvault_verified_cert_ids");
+      if (verifiedRaw) {
+        setVerifiedIds(JSON.parse(verifiedRaw));
+      }
+    } catch (e) {
+      console.warn("Could not read verified certificate IDs:", e);
+    }
   }, []);
 
   const handleCopy = (secret: string, id: string) => {
@@ -45,9 +55,16 @@ export default function CredentialsPage() {
           <div key={cert.id} className="glass-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="font-bold text-base text-slate-100">{cert.patientName}</span>
-              <span className="px-2.5 py-1 rounded-md bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
-                {cert.id}
-              </span>
+              <div className="flex items-center gap-2">
+                {verifiedIds.includes(cert.id) && (
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold flex items-center gap-1">
+                    <CheckCircle2 size={10} className="text-emerald-400" /> Verified
+                  </span>
+                )}
+                <span className="px-2.5 py-1 rounded-md bg-emerald-950/80 border border-emerald-500/30 text-emerald-400 text-xs font-mono">
+                  {cert.id}
+                </span>
+              </div>
             </div>
 
             <div className="p-3 rounded-lg bg-slate-900/80 border border-slate-800 text-xs space-y-1.5 text-slate-300">
@@ -72,11 +89,15 @@ export default function CredentialsPage() {
                   Copy Salt
                 </button>
                 <Link
-                  href="/verify"
-                  className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs flex items-center gap-1.5 transition-colors"
+                  href={`/verify?id=${cert.id}`}
+                  className={`px-3 py-1.5 rounded-lg font-semibold text-xs flex items-center gap-1.5 transition-colors ${
+                    verifiedIds.includes(cert.id)
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      : 'bg-blue-600 hover:bg-blue-500 text-white'
+                  }`}
                 >
                   <CheckCircle2 size={14} />
-                  Verify
+                  {verifiedIds.includes(cert.id) ? 'Verify Again' : 'Verify'}
                 </Link>
               </div>
             </div>

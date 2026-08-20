@@ -8,6 +8,26 @@ import { executeProofVerification } from '../../src/services/midnight';
 export default function VerifyPage() {
   const { wallet } = useWallet();
   const [patientSecret, setPatientSecret] = useState('0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069');
+  const [selectedCertId, setSelectedCertId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id) {
+        setSelectedCertId(id);
+        const { getSavedPrivateCertRecords } = require('../../src/services/midnight');
+        const savedCerts = getSavedPrivateCertRecords();
+        const cert = savedCerts.find((c: any) => c.id === id);
+        if (cert) {
+          setPatientSecret(cert.patientSecret);
+          setDoseCount(cert.doseCount);
+          setVaccineCode(cert.vaccineCode);
+          setExpirationYear(cert.expirationYear);
+        }
+      }
+    }
+  }, []);
   const [privateAuthorityKey, setPrivateAuthorityKey] = useState('0x0000000000000000000000000000000000000000000000000000000000000000');
   const [doseCount, setDoseCount] = useState(2);
   const [vaccineCode, setVaccineCode] = useState(101);
@@ -42,6 +62,18 @@ export default function VerifyPage() {
 
       setProofStep(4);
       setResult(res);
+      if (selectedCertId) {
+        try {
+          const verifiedRaw = localStorage.getItem("medvault_verified_cert_ids");
+          const verifiedList = verifiedRaw ? JSON.parse(verifiedRaw) : [];
+          if (!verifiedList.includes(selectedCertId)) {
+            verifiedList.push(selectedCertId);
+            localStorage.setItem("medvault_verified_cert_ids", JSON.stringify(verifiedList));
+          }
+        } catch (e) {
+          console.warn("Could not save verified certificate ID:", e);
+        }
+      }
     } catch (err: any) {
       setError(err?.message || 'Compact ZK Circuit assertion failed');
     } finally {
