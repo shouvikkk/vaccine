@@ -21,7 +21,7 @@ export const PrivacyExplainer: React.FC = () => {
 
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.925rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
           Traditional health passes and digital certificates broadcast full patient identity details, exact medical history, clinic locations, and vaccination dates to verifiers or public blockchains.
-          Midnight’s Compact programming language shifts verification into local private witness state—enabling patients to prove health criteria with absolute mathematical privacy.
+          Midnight's Compact programming language shifts verification into local private witness state—enabling patients to prove health criteria with absolute mathematical privacy.
         </p>
 
         {/* Side-by-side comparison */}

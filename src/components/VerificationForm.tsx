@@ -268,7 +268,7 @@ export const VerificationForm: React.FC<VerificationFormProps> = ({
               Zero-Knowledge Verification Successful!
             </div>
             <div style={{ fontSize: '0.85rem', color: '#15803d', marginTop: '0.2rem' }}>
-              The Compact circuit asserted eligibility (dose count ≥ {minDosesRequired}, unexpired) with <strong>zero personal medical data disclosed</strong>!
+              The Compact circuit asserted eligibility (dose count &gt;= {minDosesRequired}, unexpired) with <strong>zero personal medical data disclosed</strong>!
             </div>
 
             <div style={{ marginTop: '0.75rem', background: '#ffffff', padding: '0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid #bbf7d0' }}>
