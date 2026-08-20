@@ -25,6 +25,21 @@ By leveraging the **Midnight Network**, patients can prove their vaccination sta
 - **Confirmation Block**: `2186420` (`20416075db3566f26bf1a54b4e6d3730ce8e66935aeee0066ee9a6761136ceb3`)
 - **Deployer Public Address**: `mn_addr_preprod1gj5y769sduty0us0j724dlwhjdn3fklmqf754kpta7hm9r2yqelsp5m2at`
 
+## 🖥️ Application Previews
+
+### Overview page
+![Overview page](docs/images/landing_page.png)
+_*The MedVault ZK landing page welcomes users with product highlights, explanation of ZK-proof cryptography, and options to issue or verify credentials.*_
+
+### Dashboard
+![Dashboard](docs/images/overview.png)
+_*The system dashboard displays live Preprod network statuses, current synced block heights, on-chain credential confirmations, and active Lace wallet details.*_
+
+### Certificate issuance
+![Certificate issuance](docs/images/certificate_issue_record.png)
+_*The issuance suite allows authenticated health clinics to generate and sign private health records, which patients store locally.*_
+
+
 ---
 
 ## 🎯 Problem & Solution
@@ -143,26 +158,6 @@ MedVault ZK connects to the official browser extension using the **CIP-30 standa
 2. **Setup**: The user connects their **Lace Wallet** to the dashboard, ensuring they have sufficient DUST tokens.
 3. **Verification**: When entering a restricted venue, the patient scans the active policy requirements. The local proof server evaluates the private witness, matches the vaccine type against the active category policy, and verifies the dosage.
 4. **On-Chain Recording**: The proof and single-use nullifier are packaged and submitted to the blockchain. The contract verifies the proof and logs the nullifier to prevent double-entry.
-
----
-
-## 🖥️ Application Screenshots
-
-### 1. Landing & Product Overview
-![Landing Page](docs/images/landing_page.png)
-_Interactive homepage explaining zero-knowledge privacy schemas and DApp features._
-
-### 2. Main Dashboard & Network Status
-![Dashboard Overview](docs/images/overview.png)
-_Real-time Midnight Preprod network status, indexer block height, and Lace Wallet connection cards._
-
-### 3. Credential Vault & Issuance
-![Certificate Issuance](docs/images/certificate_issue_record.png)
-_Private credential creator generating locally stored cryptographically signed witnesses._
-
-### 4. Zero-Knowledge Verifier
-![Certificate Verification](docs/images/certificate_verification.png)
-_Stepper-based proof generator and transaction submission workspace._
 
 ---
 
