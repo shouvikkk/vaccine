@@ -452,3 +452,40 @@ export class MidnightService {
     ];
   }
 }
+// Standalone exported helper functions for UI components & contexts
+const midnightService = MidnightService.getInstance();
+export const checkLaceWalletConnection = async (): Promise<WalletState> => {
+  const auto = await midnightService.autoConnectIfSessionActive();
+  if (auto) return auto;
+  return {
+    providerAvailable: midnightService.isLaceAvailable(),
+    isConnecting: false,
+    isConnected: false,
+    address: null,
+    network: null,
+    balance: null,
+    error: null,
+  };
+};
+
+export const connectLaceWallet = async (): Promise<WalletState> => {
+  return await midnightService.connectLaceWallet();
+};
+
+export const disconnectLaceWallet = (): WalletState => {
+  return midnightService.disconnectWallet();
+};
+
+export const savePrivateCertRecord = (record: Omit<IssuedCertificateRecord, "id" | "issuedAt">): IssuedCertificateRecord => {
+  return midnightService.issueCertificateRecord(record);
+};
+
+export const getSavedPrivateCertRecords = (): IssuedCertificateRecord[] => {
+  return midnightService.fetchSavedCertificates();
+};
+
+export const executeProofVerification = async (params: VerificationParams): Promise<VerificationResult> => {
+  return await midnightService.verifyCertificateCircuit(params);
+};
+
+export type PrivateCertRecord = IssuedCertificateRecord;
