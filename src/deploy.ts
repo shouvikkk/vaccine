@@ -119,7 +119,8 @@ async function main() {
   const syncInterval = setInterval(() => {
     const elapsed = Math.round((Date.now() - syncStart) / 1000);
     process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
-  }, 5000);
+    void persistWalletState(network, walletCtx).catch(() => {});
+  }, 10000);
   const state = await walletCtx.wallet.waitForSyncedState();
   clearInterval(syncInterval);
   process.stdout.write('\r  ✓ Synced with network.                                      \n');
@@ -182,7 +183,8 @@ async function main() {
   const unregisteredUtxos = dustState.unshielded.availableCoins.filter(
     (c: any) => !c.meta?.registeredForDustGeneration,
   );
-  if (unregisteredUtxos.length > 0) {
+  const currentDustBalance = dustState.dust.balance(new Date());
+  if (unregisteredUtxos.length > 0 && currentDustBalance === 0n) {
     console.log(`  Registering ${unregisteredUtxos.length} NIGHT UTXOs for DUST generation...`);
     const recipe = await walletCtx.wallet.registerNightUtxosForDustGeneration(
       unregisteredUtxos,

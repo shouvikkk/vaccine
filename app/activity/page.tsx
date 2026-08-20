@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Activity, Database, Hash, CheckCircle2, ShieldCheck, Cpu, RefreshCw } from 'lucide-react';
+import { Activity, Database, Hash, CheckCircle2, ShieldCheck, Cpu, RefreshCw, ShieldAlert, FileText } from 'lucide-react';
 
 export default function ActivityPage() {
   const [ledgerState, setLedgerState] = useState<{
@@ -9,12 +9,16 @@ export default function ActivityPage() {
     totalVerifications: number;
     authorityHash: string;
     lastNullifier: string;
+    activeVaccineCategory: number;
+    revocationCounter: number;
     blockHeight: number;
   }>({
     contractAddress: '956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c',
     totalVerifications: 142,
     authorityHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
     lastNullifier: '0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069',
+    activeVaccineCategory: 100,
+    revocationCounter: 0,
     blockHeight: 2176273,
   });
 
@@ -30,6 +34,8 @@ export default function ActivityPage() {
           setLedgerState((prev) => ({
             ...prev,
             totalVerifications: data.data.totalVerifications ?? prev.totalVerifications,
+            activeVaccineCategory: data.data.activeVaccineCategory ?? prev.activeVaccineCategory,
+            revocationCounter: data.data.revocationCounter ?? prev.revocationCounter,
             blockHeight: data.data.blockHeight ?? prev.blockHeight,
           }));
         }
@@ -67,25 +73,29 @@ export default function ActivityPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-card p-6 space-y-2">
-          <div className="text-xs text-slate-400 flex items-center gap-1.5"><CheckCircle2 size={14} className="text-emerald-400" /> Total Proof Verifications</div>
-          <div className="text-3xl font-extrabold text-emerald-400">{ledgerState.totalVerifications}</div>
-          <div className="text-[11px] text-slate-500">Confirmed on Midnight Preprod Ledger</div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="glass-card p-5 space-y-2">
+          <div className="text-xs text-slate-400 flex items-center gap-1.5"><CheckCircle2 size={14} className="text-emerald-400" /> Verifications</div>
+          <div className="text-2xl font-extrabold text-emerald-400">{ledgerState.totalVerifications}</div>
+          <div className="text-[11px] text-slate-500">On-Chain Verified</div>
         </div>
 
-        <div className="glass-card p-6 space-y-2">
-          <div className="text-xs text-slate-400 flex items-center gap-1.5"><Cpu size={14} className="text-blue-400" /> Preprod Confirmation Block</div>
-          <div className="text-3xl font-extrabold text-blue-400">{ledgerState.blockHeight.toLocaleString()}</div>
-          <div className="text-[11px] text-slate-500">Substrate Ledger Block Height</div>
+        <div className="glass-card p-5 space-y-2">
+          <div className="text-xs text-slate-400 flex items-center gap-1.5"><FileText size={14} className="text-teal-400" /> Category Policy</div>
+          <div className="text-2xl font-extrabold text-teal-400">Code &gt;= {ledgerState.activeVaccineCategory}</div>
+          <div className="text-[11px] text-slate-500">Active Approved Policy</div>
         </div>
 
-        <div className="glass-card p-6 space-y-2">
-          <div className="text-xs text-slate-400 flex items-center gap-1.5"><ShieldCheck size={14} className="text-teal-400" /> Active Contract Address</div>
-          <div className="text-xs font-mono font-bold text-slate-200 truncate" title={ledgerState.contractAddress}>
-            {ledgerState.contractAddress}
-          </div>
-          <div className="text-[11px] text-slate-500">Compact v0.31.1 Ledger Circuit</div>
+        <div className="glass-card p-5 space-y-2">
+          <div className="text-xs text-slate-400 flex items-center gap-1.5"><ShieldAlert size={14} className="text-amber-400" /> Revocation Nonce</div>
+          <div className="text-2xl font-extrabold text-amber-400">{ledgerState.revocationCounter}</div>
+          <div className="text-[11px] text-slate-500">Revocation Epoch</div>
+        </div>
+
+        <div className="glass-card p-5 space-y-2">
+          <div className="text-xs text-slate-400 flex items-center gap-1.5"><Cpu size={14} className="text-blue-400" /> Block Height</div>
+          <div className="text-2xl font-extrabold text-blue-400">{ledgerState.blockHeight.toLocaleString()}</div>
+          <div className="text-[11px] text-slate-500">Midnight Ledger</div>
         </div>
       </div>
 

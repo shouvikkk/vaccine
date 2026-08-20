@@ -8,6 +8,7 @@ import { executeProofVerification } from '../../src/services/midnight';
 export default function VerifyPage() {
   const { wallet } = useWallet();
   const [patientSecret, setPatientSecret] = useState('0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069');
+  const [privateAuthorityKey, setPrivateAuthorityKey] = useState('0x0000000000000000000000000000000000000000000000000000000000000000');
   const [doseCount, setDoseCount] = useState(2);
   const [vaccineCode, setVaccineCode] = useState(101);
   const [expirationYear, setExpirationYear] = useState(2027);
@@ -32,6 +33,7 @@ export default function VerifyPage() {
 
       const res = await executeProofVerification({
         patientSecret,
+        privateAuthorityKey,
         doseCount,
         vaccineCode,
         expirationYear,

@@ -68,14 +68,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('setAuthority',
                                      'argument 1 (as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 9 char 1',
+                                     'vaccination-certificate.compact line 11 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(new_authority_0.buffer instanceof ArrayBuffer && new_authority_0.BYTES_PER_ELEMENT === 1 && new_authority_0.length === 32)) {
           __compactRuntime.typeError('setAuthority',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 9 char 1',
+                                     'vaccination-certificate.compact line 11 char 1',
                                      'Bytes<32>',
                                      new_authority_0)
         }
@@ -95,71 +95,138 @@ export class Contract {
         partialProofData.output = { value: [], alignment: [] };
         return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
       },
+      setVaccineCategory: (...args_1) => {
+        if (args_1.length !== 2) {
+          throw new __compactRuntime.CompactError(`setVaccineCategory: expected 2 arguments (as invoked from Typescript), received ${args_1.length}`);
+        }
+        const contextOrig_0 = args_1[0];
+        const new_category_0 = args_1[1];
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
+          __compactRuntime.typeError('setVaccineCategory',
+                                     'argument 1 (as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 15 char 1',
+                                     'CircuitContext',
+                                     contextOrig_0)
+        }
+        if (!(typeof(new_category_0) === 'bigint' && new_category_0 >= 0n && new_category_0 <= 18446744073709551615n)) {
+          __compactRuntime.typeError('setVaccineCategory',
+                                     'argument 1 (argument 2 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 15 char 1',
+                                     'Uint<0..18446744073709551616>',
+                                     new_category_0)
+        }
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
+        const partialProofData = {
+          input: {
+            value: _descriptor_1.toValue(new_category_0),
+            alignment: _descriptor_1.alignment()
+          },
+          output: undefined,
+          publicTranscript: [],
+          privateTranscriptOutputs: []
+        };
+        const result_0 = this._setVaccineCategory_0(context,
+                                                    partialProofData,
+                                                    new_category_0);
+        partialProofData.output = { value: [], alignment: [] };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
+      },
+      registerRevocation: (...args_1) => {
+        if (args_1.length !== 1) {
+          throw new __compactRuntime.CompactError(`registerRevocation: expected 1 argument (as invoked from Typescript), received ${args_1.length}`);
+        }
+        const contextOrig_0 = args_1[0];
+        if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
+          __compactRuntime.typeError('registerRevocation',
+                                     'argument 1 (as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 19 char 1',
+                                     'CircuitContext',
+                                     contextOrig_0)
+        }
+        const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
+        const partialProofData = {
+          input: { value: [], alignment: [] },
+          output: undefined,
+          publicTranscript: [],
+          privateTranscriptOutputs: []
+        };
+        const result_0 = this._registerRevocation_0(context, partialProofData);
+        partialProofData.output = { value: [], alignment: [] };
+        return { result: result_0, context: context, proofData: partialProofData, gasCost: context.gasCost };
+      },
       verifyCertificate: (...args_1) => {
-        if (args_1.length !== 7) {
-          throw new __compactRuntime.CompactError(`verifyCertificate: expected 7 arguments (as invoked from Typescript), received ${args_1.length}`);
+        if (args_1.length !== 8) {
+          throw new __compactRuntime.CompactError(`verifyCertificate: expected 8 arguments (as invoked from Typescript), received ${args_1.length}`);
         }
         const contextOrig_0 = args_1[0];
         const private_patient_secret_0 = args_1[1];
-        const private_dose_count_0 = args_1[2];
-        const private_vaccine_type_0 = args_1[3];
-        const private_expiration_timestamp_0 = args_1[4];
-        const min_doses_required_0 = args_1[5];
-        const current_timestamp_0 = args_1[6];
+        const private_authority_key_0 = args_1[2];
+        const private_dose_count_0 = args_1[3];
+        const private_vaccine_type_0 = args_1[4];
+        const private_expiration_timestamp_0 = args_1[5];
+        const min_doses_required_0 = args_1[6];
+        const current_timestamp_0 = args_1[7];
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('verifyCertificate',
                                      'argument 1 (as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(private_patient_secret_0.buffer instanceof ArrayBuffer && private_patient_secret_0.BYTES_PER_ELEMENT === 1 && private_patient_secret_0.length === 32)) {
           __compactRuntime.typeError('verifyCertificate',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Bytes<32>',
                                      private_patient_secret_0)
         }
-        if (!(typeof(private_dose_count_0) === 'bigint' && private_dose_count_0 >= 0n && private_dose_count_0 <= 18446744073709551615n)) {
+        if (!(private_authority_key_0.buffer instanceof ArrayBuffer && private_authority_key_0.BYTES_PER_ELEMENT === 1 && private_authority_key_0.length === 32)) {
           __compactRuntime.typeError('verifyCertificate',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'vaccination-certificate.compact line 23 char 1',
+                                     'Bytes<32>',
+                                     private_authority_key_0)
+        }
+        if (!(typeof(private_dose_count_0) === 'bigint' && private_dose_count_0 >= 0n && private_dose_count_0 <= 18446744073709551615n)) {
+          __compactRuntime.typeError('verifyCertificate',
+                                     'argument 3 (argument 4 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Uint<0..18446744073709551616>',
                                      private_dose_count_0)
         }
         if (!(typeof(private_vaccine_type_0) === 'bigint' && private_vaccine_type_0 >= 0n && private_vaccine_type_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('verifyCertificate',
-                                     'argument 3 (argument 4 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'argument 4 (argument 5 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Uint<0..18446744073709551616>',
                                      private_vaccine_type_0)
         }
         if (!(typeof(private_expiration_timestamp_0) === 'bigint' && private_expiration_timestamp_0 >= 0n && private_expiration_timestamp_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('verifyCertificate',
-                                     'argument 4 (argument 5 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'argument 5 (argument 6 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Uint<0..18446744073709551616>',
                                      private_expiration_timestamp_0)
         }
         if (!(typeof(min_doses_required_0) === 'bigint' && min_doses_required_0 >= 0n && min_doses_required_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('verifyCertificate',
-                                     'argument 5 (argument 6 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'argument 6 (argument 7 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Uint<0..18446744073709551616>',
                                      min_doses_required_0)
         }
         if (!(typeof(current_timestamp_0) === 'bigint' && current_timestamp_0 >= 0n && current_timestamp_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('verifyCertificate',
-                                     'argument 6 (argument 7 as invoked from Typescript)',
-                                     'vaccination-certificate.compact line 13 char 1',
+                                     'argument 7 (argument 8 as invoked from Typescript)',
+                                     'vaccination-certificate.compact line 23 char 1',
                                      'Uint<0..18446744073709551616>',
                                      current_timestamp_0)
         }
         const context = { ...contextOrig_0, gasCost: __compactRuntime.emptyRunningCost() };
         const partialProofData = {
           input: {
-            value: _descriptor_0.toValue(private_patient_secret_0).concat(_descriptor_1.toValue(private_dose_count_0).concat(_descriptor_1.toValue(private_vaccine_type_0).concat(_descriptor_1.toValue(private_expiration_timestamp_0).concat(_descriptor_1.toValue(min_doses_required_0).concat(_descriptor_1.toValue(current_timestamp_0)))))),
-            alignment: _descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment())))))
+            value: _descriptor_0.toValue(private_patient_secret_0).concat(_descriptor_0.toValue(private_authority_key_0).concat(_descriptor_1.toValue(private_dose_count_0).concat(_descriptor_1.toValue(private_vaccine_type_0).concat(_descriptor_1.toValue(private_expiration_timestamp_0).concat(_descriptor_1.toValue(min_doses_required_0).concat(_descriptor_1.toValue(current_timestamp_0))))))),
+            alignment: _descriptor_0.alignment().concat(_descriptor_0.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment().concat(_descriptor_1.alignment()))))))
           },
           output: undefined,
           publicTranscript: [],
@@ -168,6 +235,7 @@ export class Contract {
         const result_0 = this._verifyCertificate_0(context,
                                                    partialProofData,
                                                    private_patient_secret_0,
+                                                   private_authority_key_0,
                                                    private_dose_count_0,
                                                    private_vaccine_type_0,
                                                    private_expiration_timestamp_0,
@@ -179,10 +247,14 @@ export class Contract {
     };
     this.impureCircuits = {
       setAuthority: this.circuits.setAuthority,
+      setVaccineCategory: this.circuits.setVaccineCategory,
+      registerRevocation: this.circuits.registerRevocation,
       verifyCertificate: this.circuits.verifyCertificate
     };
     this.provableCircuits = {
       setAuthority: this.circuits.setAuthority,
+      setVaccineCategory: this.circuits.setVaccineCategory,
+      registerRevocation: this.circuits.registerRevocation,
       verifyCertificate: this.circuits.verifyCertificate
     };
   }
@@ -205,8 +277,12 @@ export class Contract {
     stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
     stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
     stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
+    stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
+    stateValue_0 = stateValue_0.arrayPush(__compactRuntime.StateValue.newNull());
     state_0.data = new __compactRuntime.ChargedState(stateValue_0);
     state_0.setOperation('setAuthority', new __compactRuntime.ContractOperation());
+    state_0.setOperation('setVaccineCategory', new __compactRuntime.ContractOperation());
+    state_0.setOperation('registerRevocation', new __compactRuntime.ContractOperation());
     state_0.setOperation('verifyCertificate', new __compactRuntime.ContractOperation());
     const context = __compactRuntime.createCircuitContext(__compactRuntime.dummyContractAddress(), constructorContext_0.initialZswapLocalState.coinPublicKey, state_0.data, constructorContext_0.initialPrivateState);
     const partialProofData = {
@@ -242,6 +318,26 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(2n),
                                                                                               alignment: _descriptor_7.alignment() }).encode() } },
                                        { push: { storage: true,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(0n),
+                                                                                              alignment: _descriptor_1.alignment() }).encode() } },
+                                       { ins: { cached: false, n: 1 } }]);
+    __compactRuntime.queryLedgerState(context,
+                                      partialProofData,
+                                      [
+                                       { push: { storage: false,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(3n),
+                                                                                              alignment: _descriptor_7.alignment() }).encode() } },
+                                       { push: { storage: true,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(0n),
+                                                                                              alignment: _descriptor_1.alignment() }).encode() } },
+                                       { ins: { cached: false, n: 1 } }]);
+    __compactRuntime.queryLedgerState(context,
+                                      partialProofData,
+                                      [
+                                       { push: { storage: false,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(4n),
+                                                                                              alignment: _descriptor_7.alignment() }).encode() } },
+                                       { push: { storage: true,
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(new Uint8Array(32)),
                                                                                               alignment: _descriptor_0.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
@@ -269,25 +365,23 @@ export class Contract {
                                        { ins: { cached: false, n: 1 } }]);
     return [];
   }
-  _verifyCertificate_0(context,
-                       partialProofData,
-                       private_patient_secret_0,
-                       private_dose_count_0,
-                       private_vaccine_type_0,
-                       private_expiration_timestamp_0,
-                       min_doses_required_0,
-                       current_timestamp_0)
-  {
-    __compactRuntime.assert(private_dose_count_0 >= min_doses_required_0,
-                            'Insufficient doses for eligibility');
-    __compactRuntime.assert(private_expiration_timestamp_0
-                            >=
-                            current_timestamp_0,
-                            'Certificate has expired');
-    __compactRuntime.assert(private_vaccine_type_0 > 0n, 'Invalid vaccine code');
+  _setVaccineCategory_0(context, partialProofData, new_category_0) {
+    __compactRuntime.queryLedgerState(context,
+                                      partialProofData,
+                                      [
+                                       { push: { storage: false,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(1n),
+                                                                                              alignment: _descriptor_7.alignment() }).encode() } },
+                                       { push: { storage: true,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(new_category_0),
+                                                                                              alignment: _descriptor_1.alignment() }).encode() } },
+                                       { ins: { cached: false, n: 1 } }]);
+    return [];
+  }
+  _registerRevocation_0(context, partialProofData) {
     const tmp_0 = ((t1) => {
                     if (t1 > 18446744073709551615n) {
-                      throw new __compactRuntime.CompactError('vaccination-certificate.compact line 25 char 27: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
+                      throw new __compactRuntime.CompactError('vaccination-certificate.compact line 20 char 26: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
                     }
                     return t1;
                   })(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
@@ -298,7 +392,7 @@ export class Contract {
                                                                                          pushPath: false,
                                                                                          path: [
                                                                                                 { tag: 'value',
-                                                                                                  value: { value: _descriptor_7.toValue(1n),
+                                                                                                  value: { value: _descriptor_7.toValue(3n),
                                                                                                            alignment: _descriptor_7.alignment() } }] } },
                                                                                 { popeq: { cached: false,
                                                                                            result: undefined } }]).value)
@@ -308,7 +402,84 @@ export class Contract {
                                       partialProofData,
                                       [
                                        { push: { storage: false,
-                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(1n),
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(3n),
+                                                                                              alignment: _descriptor_7.alignment() }).encode() } },
+                                       { push: { storage: true,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(tmp_0),
+                                                                                              alignment: _descriptor_1.alignment() }).encode() } },
+                                       { ins: { cached: false, n: 1 } }]);
+    return [];
+  }
+  _verifyCertificate_0(context,
+                       partialProofData,
+                       private_patient_secret_0,
+                       private_authority_key_0,
+                       private_dose_count_0,
+                       private_vaccine_type_0,
+                       private_expiration_timestamp_0,
+                       min_doses_required_0,
+                       current_timestamp_0)
+  {
+    __compactRuntime.assert(this._equal_0(private_authority_key_0,
+                                          _descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                                                    partialProofData,
+                                                                                                    [
+                                                                                                     { dup: { n: 0 } },
+                                                                                                     { idx: { cached: false,
+                                                                                                              pushPath: false,
+                                                                                                              path: [
+                                                                                                                     { tag: 'value',
+                                                                                                                       value: { value: _descriptor_7.toValue(0n),
+                                                                                                                                alignment: _descriptor_7.alignment() } }] } },
+                                                                                                     { popeq: { cached: false,
+                                                                                                                result: undefined } }]).value)),
+                            'Unauthorized health authority signature key');
+    __compactRuntime.assert(private_vaccine_type_0
+                            >=
+                            _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                                      partialProofData,
+                                                                                      [
+                                                                                       { dup: { n: 0 } },
+                                                                                       { idx: { cached: false,
+                                                                                                pushPath: false,
+                                                                                                path: [
+                                                                                                       { tag: 'value',
+                                                                                                         value: { value: _descriptor_7.toValue(1n),
+                                                                                                                  alignment: _descriptor_7.alignment() } }] } },
+                                                                                       { popeq: { cached: false,
+                                                                                                  result: undefined } }]).value),
+                            'Vaccine type does not meet active policy category');
+    __compactRuntime.assert(private_dose_count_0 >= min_doses_required_0,
+                            'Insufficient doses for eligibility');
+    __compactRuntime.assert(private_expiration_timestamp_0
+                            >=
+                            current_timestamp_0,
+                            'Certificate has expired');
+    __compactRuntime.assert(private_vaccine_type_0 > 0n, 'Invalid vaccine code');
+    const tmp_0 = ((t1) => {
+                    if (t1 > 18446744073709551615n) {
+                      throw new __compactRuntime.CompactError('vaccination-certificate.compact line 38 char 27: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
+                    }
+                    return t1;
+                  })(_descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                               partialProofData,
+                                                                               [
+                                                                                { dup: { n: 0 } },
+                                                                                { idx: { cached: false,
+                                                                                         pushPath: false,
+                                                                                         path: [
+                                                                                                { tag: 'value',
+                                                                                                  value: { value: _descriptor_7.toValue(2n),
+                                                                                                           alignment: _descriptor_7.alignment() } }] } },
+                                                                                { popeq: { cached: false,
+                                                                                           result: undefined } }]).value)
+                     +
+                     1n);
+    __compactRuntime.queryLedgerState(context,
+                                      partialProofData,
+                                      [
+                                       { push: { storage: false,
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(2n),
                                                                                               alignment: _descriptor_7.alignment() }).encode() } },
                                        { push: { storage: true,
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_1.toValue(tmp_0),
@@ -320,7 +491,7 @@ export class Contract {
                                       partialProofData,
                                       [
                                        { push: { storage: false,
-                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(2n),
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_7.toValue(4n),
                                                                                               alignment: _descriptor_7.alignment() }).encode() } },
                                        { push: { storage: true,
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_0.toValue(tmp_1),
@@ -334,10 +505,14 @@ export class Contract {
                                                                                pushPath: false,
                                                                                path: [
                                                                                       { tag: 'value',
-                                                                                        value: { value: _descriptor_7.toValue(2n),
+                                                                                        value: { value: _descriptor_7.toValue(4n),
                                                                                                  alignment: _descriptor_7.alignment() } }] } },
                                                                       { popeq: { cached: false,
                                                                                  result: undefined } }]).value);
+  }
+  _equal_0(x0, y0) {
+    if (!x0.every((x, i) => y0[i] === x)) { return false; }
+    return true;
   }
 }
 export function ledger(stateOrChargedState) {
@@ -368,7 +543,7 @@ export function ledger(stateOrChargedState) {
                                                                         { popeq: { cached: false,
                                                                                    result: undefined } }]).value);
     },
-    get total_verifications() {
+    get active_vaccine_category() {
       return _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
                                                                        partialProofData,
                                                                        [
@@ -382,6 +557,34 @@ export function ledger(stateOrChargedState) {
                                                                         { popeq: { cached: false,
                                                                                    result: undefined } }]).value);
     },
+    get total_verifications() {
+      return _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                       partialProofData,
+                                                                       [
+                                                                        { dup: { n: 0 } },
+                                                                        { idx: { cached: false,
+                                                                                 pushPath: false,
+                                                                                 path: [
+                                                                                        { tag: 'value',
+                                                                                          value: { value: _descriptor_7.toValue(2n),
+                                                                                                   alignment: _descriptor_7.alignment() } }] } },
+                                                                        { popeq: { cached: false,
+                                                                                   result: undefined } }]).value);
+    },
+    get revocation_counter() {
+      return _descriptor_1.fromValue(__compactRuntime.queryLedgerState(context,
+                                                                       partialProofData,
+                                                                       [
+                                                                        { dup: { n: 0 } },
+                                                                        { idx: { cached: false,
+                                                                                 pushPath: false,
+                                                                                 path: [
+                                                                                        { tag: 'value',
+                                                                                          value: { value: _descriptor_7.toValue(3n),
+                                                                                                   alignment: _descriptor_7.alignment() } }] } },
+                                                                        { popeq: { cached: false,
+                                                                                   result: undefined } }]).value);
+    },
     get last_nullifier() {
       return _descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
                                                                        partialProofData,
@@ -391,7 +594,7 @@ export function ledger(stateOrChargedState) {
                                                                                  pushPath: false,
                                                                                  path: [
                                                                                         { tag: 'value',
-                                                                                          value: { value: _descriptor_7.toValue(2n),
+                                                                                          value: { value: _descriptor_7.toValue(4n),
                                                                                                    alignment: _descriptor_7.alignment() } }] } },
                                                                         { popeq: { cached: false,
                                                                                    result: undefined } }]).value);

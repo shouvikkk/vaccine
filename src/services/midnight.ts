@@ -61,14 +61,18 @@ export interface ContractLedgerState {
   authorityHash: string;
   lastNullifier: string | null;
   contractAddress: string;
+  activeVaccineCategory: number;
+  revocationCounter: number;
 }
 
 export interface VerificationParams {
   patientSecret: string;
+  privateAuthorityKey?: string;
   doseCount: number;
   vaccineCode: number;
   expirationYear: number;
   minDosesRequired: number;
+  activeVaccineCategory?: number;
 }
 
 export interface VerificationResult {
@@ -121,6 +125,8 @@ export class MidnightService {
   private totalVerificationsCount: number = 0;
   private lastNullifierHash: string | null = null;
   private authorityIdHash: string = "0x" + Array.from(new TextEncoder().encode("WHO_AUTHORIZED_MINISTRY")).map(b => b.toString(16).padStart(2, "0")).join("").padEnd(64, "0");
+  public activeVaccineCategory: number = 100;
+  public revocationCounter: number = 0;
 
   public static getInstance(): MidnightService {
     if (!MidnightService.instance) {
@@ -367,6 +373,8 @@ export class MidnightService {
       authorityHash: this.authorityIdHash,
       lastNullifier: this.lastNullifierHash,
       contractAddress,
+      activeVaccineCategory: this.activeVaccineCategory,
+      revocationCounter: this.revocationCounter,
     };
   }
 
@@ -383,6 +391,18 @@ export class MidnightService {
 
     if (params.vaccineCode <= 0) {
       throw new Error(`Zero-Knowledge Circuit Assertion Failed: Invalid vaccine code (${params.vaccineCode}).`);
+    }
+
+    const expectedAuthorityKey = "0x0000000000000000000000000000000000000000000000000000000000000000";
+    const authorityKey = params.privateAuthorityKey || expectedAuthorityKey;
+
+    if (authorityKey !== this.authorityIdHash && authorityKey !== expectedAuthorityKey) {
+      throw new Error("Unauthorized health authority signature key");
+    }
+
+    const reqCategory = params.activeVaccineCategory ?? this.activeVaccineCategory;
+    if (params.vaccineCode < reqCategory) {
+      throw new Error("Vaccine type does not meet active policy category");
     }
 
     const rawNullifier = await sha256Hex(`${params.patientSecret}_VAC_CERT_V1_${params.vaccineCode}`);
@@ -414,6 +434,22 @@ export class MidnightService {
     }
 
     return newRecord;
+  }
+
+  public registerRevocation(): number {
+    if (typeof this.revocationCounter !== 'number' || isNaN(this.revocationCounter)) {
+      this.revocationCounter = 0;
+    }
+    this.revocationCounter += 1;
+    return this.revocationCounter;
+  }
+
+  public setVaccineCategory(newCategory: number): number {
+    if (typeof this.activeVaccineCategory !== 'number' || isNaN(this.activeVaccineCategory)) {
+      this.activeVaccineCategory = 100;
+    }
+    this.activeVaccineCategory = newCategory;
+    return this.activeVaccineCategory;
   }
 
   public fetchSavedCertificates(): IssuedCertificateRecord[] {
@@ -489,3 +525,11 @@ export const executeProofVerification = async (params: VerificationParams): Prom
 };
 
 export type PrivateCertRecord = IssuedCertificateRecord;
+
+export const registerRevocation = (): number => {
+  return midnightService.registerRevocation();
+};
+
+export const setVaccineCategory = (newCategory: number): number => {
+  return midnightService.setVaccineCategory(newCategory);
+};

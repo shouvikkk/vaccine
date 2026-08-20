@@ -3,21 +3,34 @@ pragma language_version >= 0.23;
 import CompactStandardLibrary;
 
 export ledger authority: Bytes<32>;
+export ledger active_vaccine_category: Uint<64>;
 export ledger total_verifications: Uint<64>;
+export ledger revocation_counter: Uint<64>;
 export ledger last_nullifier: Bytes<32>;
 
 export circuit setAuthority(new_authority: Bytes<32>): [] {
     authority = disclose(new_authority);
 }
 
+export circuit setVaccineCategory(new_category: Uint<64>): [] {
+    active_vaccine_category = disclose(new_category);
+}
+
+export circuit registerRevocation(): [] {
+    revocation_counter = (revocation_counter + 1) as Uint<64>;
+}
+
 export circuit verifyCertificate(
     private_patient_secret: Bytes<32>,
+    private_authority_key: Bytes<32>,
     private_dose_count: Uint<64>,
     private_vaccine_type: Uint<64>,
     private_expiration_timestamp: Uint<64>,
     min_doses_required: Uint<64>,
     current_timestamp: Uint<64>
 ): Bytes<32> {
+    assert(private_authority_key == authority, "Unauthorized health authority signature key");
+    assert(private_vaccine_type >= active_vaccine_category, "Vaccine type does not meet active policy category");
     assert(private_dose_count >= min_doses_required, "Insufficient doses for eligibility");
     assert(private_expiration_timestamp >= current_timestamp, "Certificate has expired");
     assert(private_vaccine_type > 0, "Invalid vaccine code");

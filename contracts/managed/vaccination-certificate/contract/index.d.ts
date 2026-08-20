@@ -6,8 +6,12 @@ export type Witnesses<PS> = {
 export type ImpureCircuits<PS> = {
   setAuthority(context: __compactRuntime.CircuitContext<PS>,
                new_authority_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  setVaccineCategory(context: __compactRuntime.CircuitContext<PS>,
+                     new_category_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  registerRevocation(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
   verifyCertificate(context: __compactRuntime.CircuitContext<PS>,
                     private_patient_secret_0: Uint8Array,
+                    private_authority_key_0: Uint8Array,
                     private_dose_count_0: bigint,
                     private_vaccine_type_0: bigint,
                     private_expiration_timestamp_0: bigint,
@@ -18,8 +22,12 @@ export type ImpureCircuits<PS> = {
 export type ProvableCircuits<PS> = {
   setAuthority(context: __compactRuntime.CircuitContext<PS>,
                new_authority_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  setVaccineCategory(context: __compactRuntime.CircuitContext<PS>,
+                     new_category_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  registerRevocation(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
   verifyCertificate(context: __compactRuntime.CircuitContext<PS>,
                     private_patient_secret_0: Uint8Array,
+                    private_authority_key_0: Uint8Array,
                     private_dose_count_0: bigint,
                     private_vaccine_type_0: bigint,
                     private_expiration_timestamp_0: bigint,
@@ -33,8 +41,12 @@ export type PureCircuits = {
 export type Circuits<PS> = {
   setAuthority(context: __compactRuntime.CircuitContext<PS>,
                new_authority_0: Uint8Array): __compactRuntime.CircuitResults<PS, []>;
+  setVaccineCategory(context: __compactRuntime.CircuitContext<PS>,
+                     new_category_0: bigint): __compactRuntime.CircuitResults<PS, []>;
+  registerRevocation(context: __compactRuntime.CircuitContext<PS>): __compactRuntime.CircuitResults<PS, []>;
   verifyCertificate(context: __compactRuntime.CircuitContext<PS>,
                     private_patient_secret_0: Uint8Array,
+                    private_authority_key_0: Uint8Array,
                     private_dose_count_0: bigint,
                     private_vaccine_type_0: bigint,
                     private_expiration_timestamp_0: bigint,
@@ -44,7 +56,9 @@ export type Circuits<PS> = {
 
 export type Ledger = {
   readonly authority: Uint8Array;
+  readonly active_vaccine_category: bigint;
   readonly total_verifications: bigint;
+  readonly revocation_counter: bigint;
   readonly last_nullifier: Uint8Array;
 }
 

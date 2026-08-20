@@ -63,6 +63,7 @@ export interface WalletContext {
   dustSecretKey: ReturnType<typeof ledger.DustSecretKey.fromSeed>;
   unshieldedKeystore: ReturnType<typeof createKeystore>;
   restored: { shielded: boolean; unshielded: boolean; dust: boolean };
+  childWallets?: { shielded?: any; unshielded?: any; dust?: any };
 }
 
 export interface CreateWalletOptions {
@@ -103,10 +104,11 @@ export async function createWallet(opts: CreateWalletOptions): Promise<WalletCon
     : loadWalletState(opts.network, { cwd: opts.cwd });
 
   const restored = { shielded: false, unshielded: false, dust: false };
+  const childWallets: { shielded?: any; unshielded?: any; dust?: any } = {};
 
   const walletConfig = {
     networkId,
-    batchUpdates: { size: 5000, spacing: 0, timeout: 50 },
+    batchUpdates: { size: 15000, spacing: 0, timeout: 10 },
     indexerClientConnection: {
       indexerHttpUrl: opts.networkConfig.indexer,
       indexerWsUrl: opts.networkConfig.indexerWS,
@@ -123,48 +125,54 @@ export async function createWallet(opts: CreateWalletOptions): Promise<WalletCon
     configuration: walletConfig,
     shielded: async (config) => {
       const cls = ShieldedWallet(config);
+      let inst;
       if (saved.shielded !== undefined) {
         try {
-          const restoredWallet = await (cls as any).restore(saved.shielded);
+          inst = await (cls as any).restore(saved.shielded);
           restored.shielded = true;
-          return restoredWallet;
         } catch (err) {
           warnRestoreFailure('shielded', err);
         }
       }
-      return cls.startWithSecretKeys(shieldedSecretKeys);
+      if (!inst) inst = await cls.startWithSecretKeys(shieldedSecretKeys);
+      childWallets.shielded = inst;
+      return inst;
     },
     unshielded: async (config) => {
       const cls = UnshieldedWallet(config);
+      let inst;
       if (saved.unshielded !== undefined) {
         try {
-          const restoredWallet = await (cls as any).restore(saved.unshielded);
+          inst = await (cls as any).restore(saved.unshielded);
           restored.unshielded = true;
-          return restoredWallet;
         } catch (err) {
           warnRestoreFailure('unshielded', err);
         }
       }
-      return cls.startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
+      if (!inst) inst = await cls.startWithPublicKey(PublicKey.fromKeyStore(unshieldedKeystore));
+      childWallets.unshielded = inst;
+      return inst;
     },
     dust: async (config) => {
       const cls = DustWallet(config);
+      let inst;
       if (saved.dust !== undefined) {
         try {
-          const restoredWallet = await (cls as any).restore(saved.dust);
+          inst = await (cls as any).restore(saved.dust);
           restored.dust = true;
-          return restoredWallet;
         } catch (err) {
           warnRestoreFailure('dust', err);
         }
       }
-      return cls.startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust);
+      if (!inst) inst = await cls.startWithSecretKey(dustSecretKey, ledger.LedgerParameters.initialParameters().dust);
+      childWallets.dust = inst;
+      return inst;
     },
   });
 
   await wallet.start(shieldedSecretKeys, dustSecretKey);
 
-  return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore, restored };
+  return { wallet, shieldedSecretKeys, dustSecretKey, unshieldedKeystore, restored, childWallets };
 }
 
 /**
@@ -181,7 +189,8 @@ export async function persistWalletState(
 
   for (const kind of CHILD_KINDS) {
     try {
-      const child = (ctx.wallet as unknown as Record<ChildKind, { serializeState: () => Promise<unknown> }>)[kind];
+      const child = ctx.childWallets?.[kind] || (ctx.wallet as unknown as Record<ChildKind, { serializeState: () => Promise<unknown> }>)[kind];
+      if (!child || typeof child.serializeState !== 'function') continue;
       const serialized = await child.serializeState();
       if (kind === 'dust') {
         next.dust = serialized as string;
