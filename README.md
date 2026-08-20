@@ -8,7 +8,7 @@ A production-grade, zero-knowledge healthcare credential platform built on **Mid
 [![Node.js Engine](https://img.shields.io/badge/Node.js-%3E%3D22.0.0-green.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Live On-Chain Deployment**: Deployed and confirmed on **Midnight Preprod Testnet** at contract address `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c` (Block `2,176,273`).
+> **Live On-Chain Deployment**: Deployed and confirmed on **Midnight Preprod Testnet** at contract address `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3` (Block `2,186,420`).
 
 ---
 
@@ -97,36 +97,47 @@ flowchart TD
 The Compact contract (`contracts/vaccination-certificate.compact`) defines the confidential ledger circuit:
 
 ```compact
-pragma language_version >= 0.14.0;
-import CompactLanguage;
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
 
 export ledger authority: Bytes<32>;
+export ledger active_vaccine_category: Uint<64>;
 export ledger total_verifications: Uint<64>;
+export ledger revocation_counter: Uint<64>;
 export ledger last_nullifier: Bytes<32>;
 
-constructor(initial_authority: Bytes<32>) {
-  authority = initial_authority;
-  total_verifications = 0;
-  last_nullifier = pad(32, "");
+export circuit setAuthority(new_authority: Bytes<32>): [] {
+    authority = disclose(new_authority);
+}
+
+export circuit setVaccineCategory(new_category: Uint<64>): [] {
+    active_vaccine_category = disclose(new_category);
+}
+
+export circuit registerRevocation(): [] {
+    revocation_counter = (revocation_counter + 1) as Uint<64>;
 }
 
 export circuit verifyCertificate(
-  private_patient_secret: Bytes<32>,
-  private_dose_count: Uint<64>,
-  private_vaccine_type: Uint<64>,
-  private_expiration_timestamp: Uint<64>,
-  min_doses_required: Uint<64>,
-  current_timestamp: Uint<64>
-): Disclosed<Bytes<32>> {
-  assert(private_dose_count >= min_doses_required, "Insufficient doses");
-  assert(private_expiration_timestamp >= current_timestamp, "Certificate expired");
-  assert(private_vaccine_type > 0, "Invalid vaccine code");
+    private_patient_secret: Bytes<32>,
+    private_authority_key: Bytes<32>,
+    private_dose_count: Uint<64>,
+    private_vaccine_type: Uint<64>,
+    private_expiration_timestamp: Uint<64>,
+    min_doses_required: Uint<64>,
+    current_timestamp: Uint<64>
+): Bytes<32> {
+    assert(private_authority_key == authority, "Unauthorized health authority signature key");
+    assert(private_vaccine_type >= active_vaccine_category, "Vaccine type does not meet active policy category");
+    assert(private_dose_count >= min_doses_required, "Insufficient doses for eligibility");
+    assert(private_expiration_timestamp >= current_timestamp, "Certificate has expired");
+    assert(private_vaccine_type > 0, "Invalid vaccine code");
 
-  const nullifier = persistentHash([private_patient_secret, pad(32, "VAC_CERT_V1")]);
-  total_verifications += 1;
-  last_nullifier = nullifier;
+    total_verifications = (total_verifications + 1) as Uint<64>;
+    last_nullifier = disclose(persistentHash<Vector<2, Bytes<32>>>([private_patient_secret, pad(32, "VAC_CERT_V1")]));
 
-  return disclose(nullifier);
+    return last_nullifier;
 }
 ```
 
@@ -144,11 +155,10 @@ export circuit verifyCertificate(
 ## Preprod Deployment
 
 - **Network**: Midnight Preprod Testnet (`preprod`)
-- **Deployed Contract Address**: `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c`
-- **Deployment Transaction Hash**: `4fd0d4229efe63a68f581cedbae15d99a50e6fc1bfb20c5b0db9dbf0b9b54e90`
-- **Confirmation Block Height**: `2,176,273` (`0xe56e0ad3d61e23cdcf22f39e448c04972df9650e571ec7e93f9ed0acc47e2638`)
+- **Deployed Contract Address**: `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3`
+- **Deployment Transaction Hash**: `67d2568169f195b80a278c32b9528132e41b90eb4f8a5a3b604b936386fca54a`
+- **Confirmation Block Height**: `2,186,420` (`20416075db3566f26bf1a54b4e6d3730ce8e66935aeee0066ee9a6761136ceb3`)
 - **Deployer Wallet Address**: `mn_addr_preprod1gj5y769sduty0us0j724dlwhjdn3fklmqf754kpta7hm9r2yqelsp5m2at`
-- **DUST Registration Tx**: `0xc55182d803565ecd842a372a272feca5262ea2adb0c05e8fbfb7096e57dd67a9`
 
 ---
 
@@ -162,7 +172,7 @@ export circuit verifyCertificate(
 | **Wallet Connector** | CIP-30 Interface | Midnight Lace Browser Extension |
 | **ZK Prover** | Proof Generation | Midnight Proof Server Container (Port 6300) |
 | **Blockchain** | Privacy Ledger | Midnight Preprod Testnet |
-| **Test Suite** | Unit & Integration | Vitest (v3.2) — 20/20 PASS |
+| **Test Suite** | Unit & Integration | Vitest (v3.2) — 24/24 PASS |
 
 ---
 
@@ -220,7 +230,7 @@ private-vaccination-certificate/
 | **Local Application** | Production Node.js server and DApp UI | [http://localhost:3000](http://localhost:3000) |
 | **Health API** | Node.js server health endpoint | [http://localhost:3000/api/health](http://localhost:3000/api/health) |
 | **Smart Contract** | Midnight Preprod contract/indexer information | [Preprod Indexer API](https://indexer.preprod.midnight.network/api/v4/graphql) |
-| **On-Chain Contract** | Real deployed Compact contract address | `956ba5f69dbff0301d8ee9798893e6720741b40afe1a096ec4c5241506ce658c` |
+| **On-Chain Contract** | Real deployed Compact contract address | `046760fd052604f2443028ea4518f8a7da54ae4ef1896103faf1f43111034ea3` |
 
 ---
 
@@ -282,7 +292,7 @@ Execute the automated Vitest test suite covering contract logic, privacy asserti
 npm test
 ```
 
-**Result**: **20 / 20 PASS**
+**Result**: **24 / 24 PASS**
 
 Build production web bundle:
 
